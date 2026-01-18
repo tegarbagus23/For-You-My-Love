@@ -27,9 +27,8 @@ export default function BirthdayWebsite() {
   ];
 
   const playAudio = () => {
-    // Tambahkan audio file Anda di sini
     console.log("Audio diputar untuk:", name);
-    // Contoh: new Audio("/happy-birthday.mp3").play();
+    // new Audio("/happy-birthday.mp3").play();
   };
 
   useEffect(() => {
@@ -40,7 +39,6 @@ export default function BirthdayWebsite() {
     }
   }, [scene]);
 
-  // Tambahkan style untuk animasi spin-slow
   useEffect(() => {
     const style = document.createElement('style');
     style.textContent = `
@@ -64,6 +62,7 @@ export default function BirthdayWebsite() {
       case 0:
         return (
           <Scene0 
+            key="scene0"
             name={name}
             setName={setName}
             date={date}
@@ -73,12 +72,13 @@ export default function BirthdayWebsite() {
           />
         );
       case 1:
-        return <Scene1 name={name} next={next} />;
+        return <Scene1 key="scene1" name={name} next={next} />;
       case 2:
-        return <Scene2 name={name} next={next} />;
+        return <Scene2 key="scene2" name={name} next={next} />;
       case 3:
         return (
           <GalleryScene
+            key="scene3"
             couplePhotos={couplePhotos}
             herPhotos={herPhotos}
             name={name}
@@ -86,11 +86,12 @@ export default function BirthdayWebsite() {
           />
         );
       case 4:
-        return <LoveLetterScene name={name} onNext={next} />;
+        return <LoveLetterScene key="scene4" name={name} onNext={next} />;
       case 5:
-        return <FinalScene name={name} onPlayAudio={playAudio} />;
+        return <FinalScene key="scene5" name={name} onPlayAudio={playAudio} />;
       default:
         return <Scene0 
+          key="scene0-default"
           name={name}
           setName={setName}
           date={date}
@@ -114,16 +115,7 @@ export default function BirthdayWebsite() {
       </AnimatePresence>
 
       <AnimatePresence mode="wait">
-        <motion.div
-          key={scene}
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          exit={{ opacity: 0 }}
-          transition={{ duration: 0.5 }}
-          className="h-full w-full"
-        >
-          {renderScene()}
-        </motion.div>
+        {renderScene()}
       </AnimatePresence>
     </div>
   );
@@ -234,9 +226,11 @@ function Scene0({ name, setName, date, setDate, correctDate, next }) {
   );
 }
 
-// SCENE 1: Opening Cinematic
+// SCENE 1: Opening Cinematic - FIXED (tidak berulang)
 function Scene1({ name, next }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
+  const [showInstruction, setShowInstruction] = useState(false);
+  
   const texts = [
     `Untuk ${name || "kekasihku"} yang membuat setiap detik terasa seperti dongeng...`,
     "Yang mengubah hari biasa menjadi cerita luar biasa...",
@@ -244,13 +238,44 @@ function Scene1({ name, next }) {
   ];
 
   useEffect(() => {
-    if (currentTextIndex < texts.length - 1) {
-      const timer = setTimeout(() => {
-        setCurrentTextIndex(prev => prev + 1);
-      }, 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [currentTextIndex, texts.length]);
+    // Reset state ketika scene dimulai
+    setCurrentTextIndex(0);
+    setShowInstruction(false);
+    
+    let currentIndex = 0;
+    const timers = [];
+    
+    const showNextText = () => {
+      if (currentIndex < texts.length) {
+        const timer = setTimeout(() => {
+          setCurrentTextIndex(currentIndex);
+          currentIndex++;
+          if (currentIndex < texts.length) {
+            showNextText();
+          } else {
+            // Setelah semua text muncul, tunjukkan instruksi
+            const instructionTimer = setTimeout(() => {
+              setShowInstruction(true);
+            }, 1000);
+            timers.push(instructionTimer);
+          }
+        }, 2500); // Delay 2.5 detik antar text
+        
+        timers.push(timer);
+      }
+    };
+    
+    // Mulai dengan delay kecil
+    const startTimer = setTimeout(() => {
+      showNextText();
+    }, 500);
+    timers.push(startTimer);
+    
+    // Cleanup semua timer
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, [name]); // Hanya re-run jika name berubah
 
   return (
     <motion.div
@@ -297,24 +322,26 @@ function Scene1({ name, next }) {
             key={currentTextIndex}
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -20 }}
             className="text-2xl md:text-3xl font-light leading-relaxed"
           >
             {texts[currentTextIndex]}
           </motion.p>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="pt-8"
-        >
-          <p className="text-sm opacity-70 flex items-center justify-center gap-2 animate-pulse">
-            <Sparkles className="w-4 h-4" />
-            Sentuh layar untuk melanjutkan ke keajaiban...
-            <Sparkles className="w-4 h-4" />
-          </p>
-        </motion.div>
+        {showInstruction && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="pt-8"
+          >
+            <p className="text-sm opacity-70 flex items-center justify-center gap-2 animate-pulse">
+              <Sparkles className="w-4 h-4" />
+              Sentuh layar untuk melanjutkan ke keajaiban...
+              <Sparkles className="w-4 h-4" />
+            </p>
+          </motion.div>
+        )}
       </div>
     </motion.div>
   );
@@ -450,7 +477,10 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
 
         <div className="flex justify-center gap-4 mt-6 px-6">
           <button
-            onClick={() => setActiveTab("couple")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTab("couple");
+            }}
             className={`px-6 py-2 rounded-full transition-all ${activeTab === "couple" 
               ? 'bg-pink-500 text-white shadow-lg' 
               : 'bg-white/50 text-gray-600'}`}
@@ -458,7 +488,10 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
             👫 Kita Berdua
           </button>
           <button
-            onClick={() => setActiveTab("her")}
+            onClick={(e) => {
+              e.stopPropagation();
+              setActiveTab("her");
+            }}
             className={`px-6 py-2 rounded-full transition-all ${activeTab === "her" 
               ? 'bg-purple-500 text-white shadow-lg' 
               : 'bg-white/50 text-gray-600'}`}
@@ -509,7 +542,7 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
         <div className="p-6 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
-            Sentuh area mana saja untuk melanjutkan...
+            Klik area mana saja (kecuali tombol) untuk melanjutkan...
             <Sparkles className="w-4 h-4" />
           </p>
         </div>
@@ -517,7 +550,7 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
       
       {/* Transparent clickable overlay */}
       <div 
-        className="absolute inset-0 cursor-pointer z-10"
+        className="absolute inset-0 cursor-pointer"
         onClick={onNext}
         style={{ pointerEvents: 'auto' }}
         title="Klik untuk lanjut"
@@ -526,8 +559,11 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
   );
 }
 
-// SCENE 4: Love Letter Scene
+// SCENE 4: Love Letter Scene - FIXED (tidak berulang)
 function LoveLetterScene({ name, onNext }) {
+  const [visibleMessages, setVisibleMessages] = useState([]);
+  const [isComplete, setIsComplete] = useState(false);
+  
   const messages = [
     `Dan di hari ulang tahunmu ini, ${name || "sayang"}, aku ingin mengucapkan terima kasih.`,
     "Terima kasih telah menjadi manusia yang begitu menginspirasi.",
@@ -536,21 +572,46 @@ function LoveLetterScene({ name, onNext }) {
     "impian yang kita kejar bersama, dan momen-momen sederhana yang terasa berarti karena kita lakukan bersama."
   ];
 
-  const [visibleMessages, setVisibleMessages] = useState([]);
-
   useEffect(() => {
+    // Reset state ketika scene dimulai
+    setVisibleMessages([]);
+    setIsComplete(false);
+    
     let currentIndex = 0;
-    const interval = setInterval(() => {
+    const timers = [];
+    
+    const showNextMessage = () => {
       if (currentIndex < messages.length) {
-        setVisibleMessages(prev => [...prev, messages[currentIndex]]);
-        currentIndex++;
-      } else {
-        clearInterval(interval);
+        const timer = setTimeout(() => {
+          setVisibleMessages(prev => [...prev, messages[currentIndex]]);
+          currentIndex++;
+          
+          if (currentIndex < messages.length) {
+            showNextMessage();
+          } else {
+            // Setelah semua pesan muncul
+            const completeTimer = setTimeout(() => {
+              setIsComplete(true);
+            }, 1000);
+            timers.push(completeTimer);
+          }
+        }, 2000); // Delay 2 detik antar pesan
+        
+        timers.push(timer);
       }
-    }, 2000);
-
-    return () => clearInterval(interval);
-  }, [messages]);
+    };
+    
+    // Mulai dengan delay kecil
+    const startTimer = setTimeout(() => {
+      showNextMessage();
+    }, 500);
+    timers.push(startTimer);
+    
+    // Cleanup semua timer
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, [name]); // Hanya re-run jika name berubah
 
   return (
     <motion.div
@@ -579,7 +640,7 @@ function LoveLetterScene({ name, onNext }) {
         <div className="space-y-6 min-h-[300px]">
           {visibleMessages.map((message, index) => (
             <motion.p
-              key={index}
+              key={`message-${index}`}
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
@@ -588,9 +649,14 @@ function LoveLetterScene({ name, onNext }) {
               {message}
             </motion.p>
           ))}
+          
+          {/* Placeholder untuk pesan yang belum muncul */}
+          {visibleMessages.length < messages.length && (
+            <div className="h-6"></div>
+          )}
         </div>
 
-        {visibleMessages.length === messages.length && (
+        {isComplete && (
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -606,7 +672,7 @@ function LoveLetterScene({ name, onNext }) {
         <div className="mt-8 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
-            Sentuh layar untuk kejutan terakhir...
+            {isComplete ? "Sentuh layar untuk kejutan terakhir..." : "Tunggu pesan berikutnya..."}
             <Sparkles className="w-4 h-4" />
           </p>
         </div>
@@ -615,8 +681,11 @@ function LoveLetterScene({ name, onNext }) {
   );
 }
 
-// SCENE 5: Final Scene
+// SCENE 5: Final Scene - FIXED (tidak berulang)
 function FinalScene({ name, onPlayAudio }) {
+  const [visibleWishes, setVisibleWishes] = useState([]);
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+  
   const wishes = [
     "Semoga kamu selalu diberikan kesehatan yang prima,",
     "semangat yang tak pernah padam, dan hati yang selalu muda.",
@@ -629,21 +698,46 @@ function FinalScene({ name, onPlayAudio }) {
     "Aku di sini untuk semuanya."
   ];
 
-  const [visibleWishes, setVisibleWishes] = useState([]);
-
   useEffect(() => {
+    // Reset state ketika scene dimulai
+    setVisibleWishes([]);
+    setShowFinalMessage(false);
+    
     let currentIndex = 0;
-    const interval = setInterval(() => {
+    const timers = [];
+    
+    const showNextWish = () => {
       if (currentIndex < wishes.length) {
-        setVisibleWishes(prev => [...prev, wishes[currentIndex]]);
-        currentIndex++;
-      } else {
-        clearInterval(interval);
+        const timer = setTimeout(() => {
+          setVisibleWishes(prev => [...prev, wishes[currentIndex]]);
+          currentIndex++;
+          
+          if (currentIndex < wishes.length) {
+            showNextWish();
+          } else {
+            // Setelah semua wish muncul, tampilkan final message
+            const finalTimer = setTimeout(() => {
+              setShowFinalMessage(true);
+            }, 1500);
+            timers.push(finalTimer);
+          }
+        }, 1500); // Delay 1.5 detik antar wish
+        
+        timers.push(timer);
       }
-    }, 1500);
-
-    return () => clearInterval(interval);
-  }, [wishes]);
+    };
+    
+    // Mulai dengan delay kecil
+    const startTimer = setTimeout(() => {
+      showNextWish();
+    }, 500);
+    timers.push(startTimer);
+    
+    // Cleanup semua timer
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, []); // Empty dependency array - hanya run sekali
 
   return (
     <motion.div
@@ -716,7 +810,7 @@ function FinalScene({ name, onPlayAudio }) {
           <div className="space-y-3">
             {visibleWishes.map((wish, index) => (
               <motion.p
-                key={index}
+                key={`wish-${index}`}
                 initial={{ opacity: 0, x: -10 }}
                 animate={{ opacity: 1, x: 0 }}
                 className="text-gray-700"
@@ -724,20 +818,26 @@ function FinalScene({ name, onPlayAudio }) {
                 ✨ {wish}
               </motion.p>
             ))}
+            
+            {/* Placeholder untuk wish yang belum muncul */}
+            {visibleWishes.length < wishes.length && (
+              <div className="h-4"></div>
+            )}
           </div>
         </div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: wishes.length * 1.5 + 1 }}
-          className="text-center"
-        >
-          <p className="text-2xl font-bold text-pink-600 mb-2">
-            I love you dede cantiiikkk, kesayangan mas bagus 💕
-          </p>
-          <p className="text-gray-600">Kamu adalah anugerah terindah dalam hidupku</p>
-        </motion.div>
+        {showFinalMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center"
+          >
+            <p className="text-2xl font-bold text-pink-600 mb-2">
+              I love you dede cantiiikkk, kesayangan mas bagus 💕
+            </p>
+            <p className="text-gray-600">Kamu adalah anugerah terindah dalam hidupku</p>
+          </motion.div>
+        )}
 
         <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
           <motion.button
