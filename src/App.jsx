@@ -452,9 +452,76 @@ function Scene2({ name, next }) {
   );
 }
 
-// SCENE 3: Gallery Scene - FIXED
+// SCENE 3: Enhanced Gallery Scene with Popup
 function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
   const [activeTab, setActiveTab] = useState("couple");
+  const [selectedPhoto, setSelectedPhoto] = useState(null);
+  const [isPopupOpen, setIsPopupOpen] = useState(false);
+
+  // Data lengkap untuk setiap foto utama
+  const photoCollections = {
+    // Koleksi untuk foto pertama
+    photo1: {
+      mainPhoto: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?w=800&auto=format&fit=crop",
+      title: "Momen Pertama Kita",
+      description: "Hari itu ketika semuanya dimulai...",
+      additionalPhotos: [
+        { type: "photo", url: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f47?w=400&auto=format&fit=crop", caption: "Ketika kita baru pertama kali ketemu" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f48?w=400&auto=format&fit=crop", caption: "Makan bersama pertama kali" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1529626455594-4ff0802cfb7e?w=400&auto=format&fit=crop", caption: "Foto candid kamu yang lucu" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1542751110-97427bbecf20?w=400&auto=format&fit=crop", title: "Video 1: Hari Spesial Kita" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?w=400&auto=format&fit=crop", caption: "Senyum manismu" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1529335764857-3f1164d1cb24?w=400&auto=format&fit=crop", title: "Video 2: Kenangan Liburan" },
+      ]
+    },
+    // Koleksi untuk foto kedua
+    photo2: {
+      mainPhoto: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f47?w=800&auto=format&fit=crop",
+      title: "Pertama Kali Jalan Bareng",
+      description: "Tanggal pertama yang tak terlupakan...",
+      additionalPhotos: [
+        { type: "photo", url: "https://images.unsplash.com/photo-1494790108755-2616c113b1db?w=400&auto=format&fit=crop", caption: "Kamu yang cantik di hari itu" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1487412720507-e7ab37603c6f?w=400&auto=format&fit=crop", caption: "Ketika kita nonton film pertama" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1539635278303-d4002c07eae3?w=400&auto=format&fit=crop", title: "Video: Makan Malam Romantis" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?w=400&auto=format&fit=crop", caption: "Foto kita berdua yang pertama" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1507003211169-0a1dd7228f2d?w=400&auto=format&fit=crop", caption: "Selfie kita yang lucu" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1529255484355-cb73c33c04bb?w=400&auto=format&fit=crop", title: "Video: Liburan ke Pantai" },
+      ]
+    },
+    // Koleksi untuk foto ketiga
+    photo3: {
+      mainPhoto: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f48?w=800&auto=format&fit=crop",
+      title: "Momen Spesial Kita",
+      description: "Hari-hari indah bersamamu...",
+      additionalPhotos: [
+        { type: "photo", url: "https://images.unsplash.com/photo-1539571696357-5a69c17a67c6?w=400&auto=format&fit=crop", caption: "Party ulang tahunmu" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1511795409834-ef04bbd61622?w=400&auto=format&fit=crop", title: "Video: Celebration Time!" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1508214751196-bcfd4ca60f91?w=400&auto=format&fit=crop", caption: "Ketika kita jalan-jalan" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1531427186611-ecfd6d936c79?w=400&auto=format&fit=crop", caption: "Candid moment yang lucu" },
+        { type: "video", thumbnail: "https://images.unsplash.com/photo-1542744094-3a31f272c490?w=400&auto=format&fit=crop", title: "Video: Adventure Together" },
+        { type: "photo", url: "https://images.unsplash.com/photo-1517841905240-472988babdf9?w=400&auto=format&fit=crop", caption: "Portrait terbaikmu" },
+      ]
+    }
+  };
+
+  // Foto-foto utama yang ditampilkan di galeri
+  const mainGalleryPhotos = [
+    { id: "photo1", src: photoCollections.photo1.mainPhoto, title: "Momen Pertama" },
+    { id: "photo2", src: photoCollections.photo2.mainPhoto, title: "Jalan Pertama" },
+    { id: "photo3", src: photoCollections.photo3.mainPhoto, title: "Spesial" },
+  ];
+
+  const handlePhotoClick = (photoId) => {
+    setSelectedPhoto(photoId);
+    setIsPopupOpen(true);
+  };
+
+  const handleClosePopup = () => {
+    setIsPopupOpen(false);
+    setTimeout(() => {
+      setSelectedPhoto(null);
+    }, 300);
+  };
 
   return (
     <div className="h-full relative">
@@ -472,7 +539,7 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
           >
             📸 Galeri Kenangan Kita
           </motion.h2>
-          <p className="text-gray-600 mt-2">Momen-momen terindah bersamamu</p>
+          <p className="text-gray-600 mt-2">Klik foto favorit untuk melihat lebih banyak kenangan</p>
         </div>
 
         <div className="flex justify-center gap-4 mt-6 px-6">
@@ -496,65 +563,243 @@ function GalleryScene({ couplePhotos, herPhotos, name, onNext }) {
               ? 'bg-purple-500 text-white shadow-lg' 
               : 'bg-white/50 text-gray-600'}`}
           >
-            ⭐ Bintang Utama
+            ⭐ {name || "Dia"}
           </button>
         </div>
 
         <div className="flex-1 overflow-y-auto p-6">
-          <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-            {activeTab === "couple" ? (
-              couplePhotos.map((photo, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white"
-                >
-                  <div className="w-full h-full bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center">
-                    <span className="text-4xl">👫</span>
-                  </div>
-                </motion.div>
-              ))
-            ) : (
-              herPhotos.map((photo, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.1 }}
-                  className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white relative"
-                >
-                  <div className="w-full h-full bg-gradient-to-br from-pink-200 to-rose-200 flex items-center justify-center">
-                    <span className="text-4xl">💖</span>
-                  </div>
-                  {index === 0 && (
-                    <div className="absolute top-2 right-2 bg-yellow-400 text-white px-2 py-1 rounded-full text-xs">
-                      ✨ Favorit!
+          {activeTab === "couple" ? (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-pink-700 mb-4">📁 Album Bersama</h3>
+                <p className="text-gray-600">Kumpulan momen indah kita berdua</p>
+              </div>
+              
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                {mainGalleryPhotos.map((photo, index) => (
+                  <motion.div
+                    key={photo.id}
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    transition={{ delay: index * 0.1 }}
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    className="aspect-square rounded-2xl overflow-hidden shadow-xl cursor-pointer border-4 border-white relative group"
+                    onClick={() => handlePhotoClick(photo.id)}
+                  >
+                    <div className="w-full h-full bg-gradient-to-br from-blue-200 to-purple-200 flex items-center justify-center">
+                      <span className="text-5xl">👫</span>
                     </div>
-                  )}
-                </motion.div>
-              ))
-            )}
-          </div>
+                    <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
+                      <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 p-4 rounded-lg shadow-lg">
+                        <p className="text-pink-600 font-bold">Klik untuk lihat lebih banyak!</p>
+                      </div>
+                    </div>
+                    <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 text-white">
+                      <p className="font-bold">{photo.title}</p>
+                      <p className="text-sm opacity-90">📁 6+ foto & video</p>
+                    </div>
+                  </motion.div>
+                ))}
+              </div>
+
+              <div className="bg-white/50 rounded-2xl p-6 mt-8">
+                <h4 className="text-lg font-bold text-purple-700 mb-4 flex items-center gap-2">
+                  <Sparkles className="w-5 h-5" />
+                  Cara Menggunakan Galeri
+                </h4>
+                <ul className="space-y-2 text-gray-700">
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                    Klik salah satu foto di atas untuk membuka koleksi lengkap
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                    Setiap foto utama memiliki 6+ foto dan video kenangan
+                  </li>
+                  <li className="flex items-center gap-2">
+                    <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
+                    Scroll untuk melihat semua konten dalam popup
+                  </li>
+                </ul>
+              </div>
+            </div>
+          ) : (
+            <div className="space-y-8">
+              <div className="text-center">
+                <h3 className="text-xl font-bold text-purple-700 mb-4">💝 Koleksi Spesial {name}</h3>
+                <p className="text-gray-600">Momen-momen terindah {name || "dirimu"}</p>
+              </div>
+              
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
+                {herPhotos.map((photo, index) => (
+                  <motion.div
+                    key={index}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    animate={{ opacity: 1, scale: 1 }}
+                    transition={{ delay: index * 0.1 }}
+                    className="aspect-square rounded-2xl overflow-hidden shadow-lg border-4 border-white relative group"
+                  >
+                    <div className="w-full h-full bg-gradient-to-br from-pink-200 to-rose-200 flex items-center justify-center">
+                      <span className="text-4xl">💖</span>
+                    </div>
+                    {index === 0 && (
+                      <div className="absolute top-2 right-2 bg-yellow-400 text-white px-3 py-1 rounded-full text-sm font-bold shadow-lg">
+                        ✨ Favorit!
+                      </div>
+                    )}
+                    <div className="absolute inset-0 bg-gradient-to-t from-black/50 to-transparent opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-end p-4">
+                      <p className="text-white font-bold">Foto spesial untuk spesialmu</p>
+                    </div>
+                  </motion.div>
+                ))}
+                
+                {/* Add some decorative empty frames */}
+                {[3, 4, 5].map((i) => (
+                  <motion.div
+                    key={i}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 0.3 }}
+                    transition={{ delay: 0.5 + i * 0.1 }}
+                    className="aspect-square rounded-2xl border-4 border-dashed border-gray-300 flex items-center justify-center"
+                  >
+                    <span className="text-gray-400 text-sm">Coming soon...</span>
+                  </motion.div>
+                ))}
+              </div>
+            </div>
+          )}
         </div>
 
         <div className="p-6 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
-            Klik area mana saja (kecuali tombol) untuk melanjutkan...
+            {activeTab === "couple" 
+              ? "Klik salah satu foto untuk melihat koleksi lengkap" 
+              : "Foto-foto spesial hanya untukmu"}
             <Sparkles className="w-4 h-4" />
           </p>
         </div>
       </motion.div>
-      
-      {/* Transparent clickable overlay */}
+
+      {/* Transparent clickable overlay untuk next scene */}
       <div 
-        className="absolute inset-0 cursor-pointer"
+        className="absolute bottom-0 left-0 right-0 h-16 cursor-pointer"
         onClick={onNext}
-        style={{ pointerEvents: 'auto' }}
-        title="Klik untuk lanjut"
+        title="Klik untuk lanjut ke scene berikutnya"
       />
+
+      {/* Popup untuk menampilkan koleksi lengkap */}
+      <AnimatePresence>
+        {isPopupOpen && selectedPhoto && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            exit={{ opacity: 0 }}
+            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            onClick={handleClosePopup}
+          >
+            <motion.div
+              initial={{ scale: 0.8, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              exit={{ scale: 0.8, opacity: 0 }}
+              className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl"
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div className="p-6 border-b border-pink-200 bg-gradient-to-r from-pink-500 to-purple-500 text-white">
+                <div className="flex justify-between items-center">
+                  <div>
+                    <h3 className="text-2xl font-bold">
+                      {photoCollections[selectedPhoto]?.title || "Koleksi Kenangan"}
+                    </h3>
+                    <p className="opacity-90">
+                      {photoCollections[selectedPhoto]?.description || "Momen-momen indah kita"}
+                    </p>
+                  </div>
+                  <button
+                    onClick={handleClosePopup}
+                    className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
+                  >
+                    ✕
+                  </button>
+                </div>
+              </div>
+
+              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
+                {/* Foto utama */}
+                <div className="mb-8">
+                  <div className="aspect-video rounded-2xl overflow-hidden shadow-lg mb-4">
+                    <div className="w-full h-full bg-gradient-to-br from-blue-300 to-purple-300 flex items-center justify-center">
+                      <span className="text-7xl">👫</span>
+                    </div>
+                  </div>
+                  <p className="text-center text-gray-600 italic">
+                    "Foto utama yang mengawali semua kenangan indah kita"
+                  </p>
+                </div>
+
+                {/* Grid foto dan video */}
+                <div className="mb-8">
+                  <h4 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
+                    <Sparkles className="w-5 h-5" />
+                    Koleksi Lengkap ({photoCollections[selectedPhoto]?.additionalPhotos.length || 0} item)
+                  </h4>
+                  
+                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {photoCollections[selectedPhoto]?.additionalPhotos.map((item, index) => (
+                      <motion.div
+                        key={index}
+                        initial={{ opacity: 0, y: 20 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ delay: index * 0.05 }}
+                        className={`rounded-xl overflow-hidden shadow-lg border-2 border-white group cursor-pointer ${item.type === 'video' ? 'relative' : ''}`}
+                        whileHover={{ scale: 1.02 }}
+                      >
+                        {item.type === 'photo' ? (
+                          <div className="aspect-square bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col items-center justify-center p-4">
+                            <span className="text-4xl mb-2">📸</span>
+                            <p className="text-center text-gray-700 font-medium">{item.caption}</p>
+                            <p className="text-sm text-gray-500 mt-2">Foto kenangan</p>
+                          </div>
+                        ) : (
+                          <div className="aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 flex flex-col items-center justify-center p-4 relative">
+                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
+                              VIDEO
+                            </div>
+                            <span className="text-4xl mb-2">🎬</span>
+                            <p className="text-center text-gray-700 font-medium">{item.title}</p>
+                            <div className="mt-4 flex items-center justify-center">
+                              <button className="bg-black/20 hover:bg-black/30 rounded-full p-3 transition-all">
+                                ▶️
+                              </button>
+                            </div>
+                          </div>
+                        )}
+                      </motion.div>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Pesan romantis */}
+                <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-200">
+                  <div className="flex items-center gap-3 mb-4">
+                    <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
+                    <h5 className="text-lg font-bold text-pink-700">Pesan dari Mas Bagus</h5>
+                  </div>
+                  <p className="text-gray-700 italic">
+                    "Setiap foto dan video ini adalah bukti betapa indahnya perjalanan kita bersama. 
+                    Terima kasih telah menjadi bagian dari setiap momen berharga ini, {name || "sayang"}. 
+                    Aku bersyukur bisa merekam setiap tawa, setiap cerita, dan setiap perkembangan kita."
+                  </p>
+                  <p className="text-right text-pink-600 font-bold mt-4">
+                    - Mas Bagus 💕
+                  </p>
+                </div>
+              </div>
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
