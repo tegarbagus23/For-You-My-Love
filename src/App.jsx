@@ -21,11 +21,6 @@ export default function BirthdayWebsite() {
     }
   };
 
-  const playAudio = () => {
-    console.log("Audio diputar untuk:", name);
-    // new Audio("/happy-birthday.mp3").play();
-  };
-
   useEffect(() => {
     if (scene === 2) {
       setShowConfetti(true);
@@ -34,30 +29,11 @@ export default function BirthdayWebsite() {
     }
   }, [scene]);
 
-  useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      .animate-spin-slow {
-        animation: spin-slow 8s linear infinite;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
   const renderScene = () => {
     switch(scene) {
       case 0:
         return (
           <Scene0 
-            key="scene0"
             name={name}
             setName={setName}
             date={date}
@@ -67,18 +43,17 @@ export default function BirthdayWebsite() {
           />
         );
       case 1:
-        return <Scene1 key="scene1" name={name} next={next} />;
+        return <Scene1 name={name} next={next} />;
       case 2:
-        return <Scene2 key="scene2" name={name} next={next} />;
+        return <Scene2 name={name} next={next} />;
       case 3:
-        return <GalleryScene key="scene3" name={name} onNext={next} />;
+        return <GalleryScene name={name} onNext={next} />;
       case 4:
-        return <LoveLetterScene key="scene4" name={name} onNext={next} />;
+        return <LoveLetterScene name={name} onNext={next} />;
       case 5:
-        return <FinalScene key="scene5" name={name} onPlayAudio={playAudio} />;
+        return <FinalScene name={name} />;
       default:
         return <Scene0 
-          key="scene0-default"
           name={name}
           setName={setName}
           date={date}
@@ -90,16 +65,13 @@ export default function BirthdayWebsite() {
   };
 
   return (
-    <div className="w-screen h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 overflow-hidden relative">
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 overflow-hidden relative">
       <div className="absolute inset-0 overflow-hidden">
         <div className="absolute top-10 left-10 w-20 h-20 bg-pink-300 rounded-full opacity-20 animate-pulse"></div>
         <div className="absolute bottom-20 right-20 w-32 h-32 bg-purple-300 rounded-full opacity-10"></div>
-        <div className="absolute top-1/2 left-1/4 w-16 h-16 bg-yellow-300 rounded-full opacity-15"></div>
       </div>
 
-      <AnimatePresence>
-        {showConfetti && <Confetti />}
-      </AnimatePresence>
+      {showConfetti && <Confetti />}
 
       {/* Navigation Controls */}
       {scene > 0 && scene < 5 && (
@@ -130,60 +102,41 @@ export default function BirthdayWebsite() {
       </div>
 
       <AnimatePresence mode="wait">
-        {renderScene()}
+        <motion.div
+          key={scene}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          exit={{ opacity: 0, y: -20 }}
+          className="h-screen flex flex-col"
+        >
+          {renderScene()}
+        </motion.div>
       </AnimatePresence>
     </div>
   );
 }
 
-// SCENE 0: Login Page
+// SCENE 0: Login Page - SIMPLIFIED
 function Scene0({ name, setName, date, setDate, correctDate, next }) {
-  const [isIncorrect, setIsIncorrect] = useState(false);
+  const isFormValid = name.trim() !== "" && date === correctDate;
 
-  const handleDateChange = (e) => {
-    const value = e.target.value;
-    setDate(value);
-    setIsIncorrect(value && value !== correctDate);
-  };
-
-  const handleSubmit = () => {
-    if (date === correctDate && name) {
+  const handleSubmit = (e) => {
+    e.preventDefault();
+    if (isFormValid) {
       next();
     }
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      exit={{ opacity: 0, scale: 0.9 }}
-      className="h-full flex flex-col items-center justify-center p-6 relative z-10"
-    >
-      <div className="absolute top-10 animate-bounce">
-        <Heart className="w-12 h-12 text-pink-400 fill-pink-400" />
-      </div>
-      <div className="absolute bottom-20 right-10 animate-spin-slow">
-        <Sparkles className="w-8 h-8 text-yellow-400" />
-      </div>
-
-      <motion.div
-        initial={{ scale: 0 }}
-        animate={{ scale: 1 }}
-        transition={{ delay: 0.3, type: "spring" }}
-        className="text-center mb-8"
-      >
-        <h1 className="text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
+    <div className="h-full flex flex-col items-center justify-center p-4">
+      <div className="text-center mb-8">
+        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
           🎀 Gerbang Cinta 🎀
         </h1>
-        <p className="text-gray-600 mt-2">Masukkan kode rahasia untuk masuk ke dunia kita</p>
-      </motion.div>
+        <p className="text-gray-600 mt-2">Masukkan kode rahasia untuk masuk</p>
+      </div>
 
-      <motion.div
-        initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0 }}
-        transition={{ delay: 0.5 }}
-        className="w-full max-w-md space-y-6 bg-white/80 backdrop-blur-sm p-8 rounded-3xl shadow-lg border border-pink-200"
-      >
+      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-pink-200">
         <div className="space-y-4">
           <div>
             <label className="block text-sm font-medium text-pink-700 mb-2">
@@ -192,9 +145,10 @@ function Scene0({ name, setName, date, setDate, correctDate, next }) {
             <input
               type="text"
               placeholder="Masukkan nama panggilanmu..."
-              className="w-full p-4 rounded-2xl border-2 border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all bg-white/50"
+              className="w-full p-3 rounded-2xl border-2 border-pink-300 focus:border-pink-500 outline-none transition-all bg-white"
               value={name}
               onChange={(e) => setName(e.target.value)}
+              required
             />
           </div>
 
@@ -205,61 +159,45 @@ function Scene0({ name, setName, date, setDate, correctDate, next }) {
             <input
               type="text"
               placeholder="Misal: 14-02-2003"
-              className="w-full p-4 rounded-2xl border-2 border-pink-300 focus:border-pink-500 focus:ring-2 focus:ring-pink-200 outline-none transition-all bg-white/50"
+              className="w-full p-3 rounded-2xl border-2 border-pink-300 focus:border-pink-500 outline-none transition-all bg-white"
               value={date}
-              onChange={handleDateChange}
-              onKeyDown={(e) => e.key === 'Enter' && handleSubmit()}
+              onChange={(e) => setDate(e.target.value)}
+              required
             />
           </div>
 
-          <AnimatePresence>
-            {isIncorrect && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="text-red-400 text-sm text-center p-2 bg-red-50 rounded-lg"
-              >
-                ❤️ Hmm... coba ingat-ingat lagi sayangku! Mungkin ada yang keliru? 😘
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {date && date !== correctDate && (
+            <p className="text-red-400 text-sm text-center p-2 bg-red-50 rounded-lg">
+              ❤️ Coba ingat-ingat lagi sayangku! 😘
+            </p>
+          )}
         </div>
 
-        <AnimatePresence>
-          {date === correctDate && name && (
-            <motion.button
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleSubmit}
-              className="w-full bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4 rounded-2xl font-bold text-lg shadow-lg hover:shadow-xl transition-all flex items-center justify-center gap-3"
-            >
-              <Sparkles className="w-5 h-5" />
-              Buka Dunia Cinta Kita ✨
-              <Sparkles className="w-5 h-5" />
-            </motion.button>
-          )}
-        </AnimatePresence>
-      </motion.div>
+        <button
+          type="submit"
+          disabled={!isFormValid}
+          className={`w-full p-3 rounded-2xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-3 ${
+            isFormValid 
+              ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-xl' 
+              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
+          }`}
+        >
+          <Sparkles className="w-5 h-5" />
+          Buka Dunia Cinta Kita ✨
+          <Sparkles className="w-5 h-5" />
+        </button>
+      </form>
 
-      <motion.p
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        transition={{ delay: 1 }}
-        className="text-gray-500 text-sm mt-8 text-center"
-      >
-        🔒 Hanya untuk {name || "seseorang"} yang paling spesial
-      </motion.p>
-    </motion.div>
+      <p className="text-gray-500 text-sm mt-8 text-center">
+        🔒 Hanya untuk {name || "seseorang"} yang spesial
+      </p>
+    </div>
   );
 }
 
-// SCENE 1: Opening Cinematic
+// SCENE 1: Opening Cinematic - SIMPLIFIED
 function Scene1({ name, next }) {
-  const [currentTextIndex, setCurrentTextIndex] = useState(0);
-  const [showInstruction, setShowInstruction] = useState(false);
+  const [textIndex, setTextIndex] = useState(0);
   
   const texts = [
     `Untuk ${name || "kekasihku"} yang membuat setiap detik terasa seperti dongeng...`,
@@ -268,93 +206,45 @@ function Scene1({ name, next }) {
   ];
 
   useEffect(() => {
-    setCurrentTextIndex(0);
-    setShowInstruction(false);
-    
-    const timers = [];
-    
-    const showText = (index) => {
-      if (index < texts.length) {
-        const timer = setTimeout(() => {
-          setCurrentTextIndex(index);
-          if (index === texts.length - 1) {
-            const instructionTimer = setTimeout(() => {
-              setShowInstruction(true);
-            }, 1000);
-            timers.push(instructionTimer);
-          } else {
-            showText(index + 1);
-          }
-        }, 2500);
-        timers.push(timer);
+    const timer = setTimeout(() => {
+      if (textIndex < texts.length - 1) {
+        setTextIndex(textIndex + 1);
       }
-    };
+    }, 2500);
     
-    const startTimer = setTimeout(() => {
-      showText(0);
-    }, 500);
-    timers.push(startTimer);
-    
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [textIndex]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/90 via-pink-900/80 to-rose-900/90 text-white p-8 relative overflow-hidden cursor-pointer"
+    <div 
+      className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/90 via-pink-900/80 to-rose-900/90 text-white p-4 cursor-pointer"
       onClick={next}
     >
-      <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute w-1 h-1 bg-white rounded-full"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              opacity: [0.3, 1, 0.3],
-              scale: [1, 1.5, 1],
-            }}
-            transition={{
-              duration: 2,
-              repeat: Infinity,
-              delay: Math.random() * 2,
-            }}
-          />
-        ))}
-      </div>
-
-      <div className="text-center space-y-8 relative z-10 max-w-2xl">
+      <div className="text-center space-y-8 max-w-2xl">
         <motion.div
           initial={{ scale: 0, rotate: -180 }}
           animate={{ scale: 1, rotate: 0 }}
           transition={{ type: "spring", damping: 10 }}
-          className="mx-auto w-24 h-24 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl"
+          className="mx-auto w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl"
         >
-          <Heart className="w-12 h-12 fill-white" />
+          <Heart className="w-10 h-10 fill-white" />
         </motion.div>
 
         <div className="min-h-[120px] flex items-center justify-center">
           <AnimatePresence mode="wait">
             <motion.p
-              key={currentTextIndex}
+              key={textIndex}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -20 }}
-              className="text-2xl md:text-3xl font-light leading-relaxed"
+              className="text-xl md:text-2xl font-light leading-relaxed"
             >
-              {texts[currentTextIndex]}
+              {texts[textIndex]}
             </motion.p>
           </AnimatePresence>
         </div>
 
-        {showInstruction && (
+        {textIndex === texts.length - 1 && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
@@ -362,122 +252,65 @@ function Scene1({ name, next }) {
           >
             <p className="text-sm opacity-70 flex items-center justify-center gap-2 animate-pulse">
               <Sparkles className="w-4 h-4" />
-              Sentuh layar untuk melanjutkan ke keajaiban...
+              Sentuh layar untuk melanjutkan...
               <Sparkles className="w-4 h-4" />
             </p>
           </motion.div>
         )}
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// SCENE 2: Birthday Animation
+// SCENE 2: Birthday Animation - SIMPLIFIED
 function Scene2({ name, next }) {
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="h-full flex flex-col items-center justify-center p-6 relative overflow-hidden cursor-pointer"
+    <div 
+      className="h-full flex flex-col items-center justify-center p-4 relative cursor-pointer"
       onClick={next}
     >
-      <div className="absolute inset-0">
-        {[...Array(15)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-pink-300"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-              fontSize: `${Math.random() * 24 + 16}px`,
-            }}
-            animate={{
-              y: [0, -20, 0],
-              rotate: [0, 360],
-            }}
-            transition={{
-              duration: Math.random() * 3 + 2,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          >
-            ❤️
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="text-center space-y-6 relative z-10">
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", damping: 15 }}
-          className="relative"
-        >
-          <div className="w-48 h-48 mx-auto bg-gradient-to-br from-pink-400 to-rose-500 rounded-full p-1">
-            <div className="w-full h-full bg-white rounded-full overflow-hidden">
-              <div className="w-full h-full bg-gradient-to-br from-blue-100 to-purple-100 flex items-center justify-center">
-                <span className="text-4xl">😊</span>
-              </div>
-            </div>
-          </div>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-4 -right-4 w-16 h-16"
-          >
-            <Star className="w-16 h-16 text-yellow-400 fill-yellow-400" />
-          </motion.div>
-        </motion.div>
-
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, type: "spring" }}
-          className="space-y-2"
-        >
-          <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
-            SELAMAT ULANG TAHUN!
-          </h1>
-          <motion.p
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1, type: "spring" }}
-            className="text-3xl text-pink-700 font-bold"
-          >
-            {name || "Sayangku"} 💝
-          </motion.p>
-        </motion.div>
-
+      <div className="text-center space-y-6">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          transition={{ delay: 1.5, type: "spring" }}
-          className="inline-block"
+          transition={{ type: "spring" }}
+          className="relative"
         >
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-8 py-3 rounded-full text-2xl font-bold shadow-lg">
-            🎂 yang ke-23 🎂
+          <div className="w-40 h-40 mx-auto bg-gradient-to-br from-pink-400 to-rose-500 rounded-full p-1">
+            <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+              <span className="text-4xl">😊</span>
+            </div>
           </div>
         </motion.div>
 
-        <motion.div
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 2 }}
-          className="pt-8"
-        >
+        <div className="space-y-2">
+          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+            SELAMAT ULANG TAHUN!
+          </h1>
+          <p className="text-2xl text-pink-700 font-bold">
+            {name || "Sayangku"} 💝
+          </p>
+        </div>
+
+        <div className="inline-block">
+          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full text-xl font-bold shadow-lg">
+            🎂 yang ke-23 🎂
+          </div>
+        </div>
+
+        <div className="pt-8">
           <p className="text-gray-600 text-sm flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
             Sentuh layar untuk melihat kenangan indah kita...
             <Sparkles className="w-4 h-4" />
           </p>
-        </motion.div>
+        </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// SCENE 3: Enhanced Gallery Scene
+// SCENE 3: Gallery Scene - CLEAN VERSION
 function GalleryScene({ name, onNext }) {
   const [selectedPhoto, setSelectedPhoto] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -488,53 +321,49 @@ function GalleryScene({ name, onNext }) {
       title: "Momen Pertama Kita",
       description: "Hari itu ketika semuanya dimulai...",
       icon: "💕",
-      color: "from-blue-300 to-purple-300",
-      additionalPhotos: [
-        { id: 1, type: "photo", caption: "Ketika kita baru pertama kali ketemu", icon: "📸" },
-        { id: 2, type: "photo", caption: "Makan bersama pertama kali", icon: "🍽️" },
-        { id: 3, type: "photo", caption: "Foto candid kamu yang lucu", icon: "😊" },
-        { id: 4, type: "video", title: "Video 1: Hari Spesial Kita", icon: "🎬" },
-        { id: 5, type: "photo", caption: "Senyum manismu", icon: "😍" },
-        { id: 6, type: "video", title: "Video 2: Kenangan Liburan", icon: "✈️" },
+      color: "bg-gradient-to-br from-blue-200 to-purple-200",
+      items: [
+        { id: 1, type: "photo", text: "Ketemu pertama kali", icon: "📸" },
+        { id: 2, type: "photo", text: "Makan bersama", icon: "🍽️" },
+        { id: 3, type: "photo", text: "Foto candid lucu", icon: "😊" },
+        { id: 4, type: "video", text: "Hari Spesial", icon: "🎬" },
+        { id: 5, type: "photo", text: "Senyum manismu", icon: "😍" },
+        { id: 6, type: "video", text: "Kenangan Liburan", icon: "✈️" },
       ]
     },
     photo2: {
       id: "photo2",
-      title: "Pertama Kali Jalan Bareng",
+      title: "Pertama Kali Jalan",
       description: "Tanggal pertama yang tak terlupakan...",
       icon: "🌹",
-      color: "from-pink-300 to-rose-300",
-      additionalPhotos: [
-        { id: 1, type: "photo", caption: "Kamu yang cantik di hari itu", icon: "💖" },
-        { id: 2, type: "photo", caption: "Ketika kita nonton film pertama", icon: "🎬" },
-        { id: 3, type: "video", title: "Video: Makan Malam Romantis", icon: "🍷" },
-        { id: 4, type: "photo", caption: "Foto kita berdua yang pertama", icon: "📸" },
-        { id: 5, type: "photo", caption: "Selfie kita yang lucu", icon: "🤳" },
-        { id: 6, type: "video", title: "Video: Liburan ke Pantai", icon: "🏖️" },
+      color: "bg-gradient-to-br from-pink-200 to-rose-200",
+      items: [
+        { id: 1, type: "photo", text: "Kamu yang cantik", icon: "💖" },
+        { id: 2, type: "photo", text: "Nonton film pertama", icon: "🎬" },
+        { id: 3, type: "video", text: "Makan Malam", icon: "🍷" },
+        { id: 4, type: "photo", text: "Foto pertama kita", icon: "📸" },
+        { id: 5, type: "photo", text: "Selfie lucu", icon: "🤳" },
+        { id: 6, type: "video", text: "Liburan ke Pantai", icon: "🏖️" },
       ]
     },
     photo3: {
       id: "photo3",
-      title: "Momen Spesial Kita",
+      title: "Momen Spesial",
       description: "Hari-hari indah bersamamu...",
       icon: "✨",
-      color: "from-purple-300 to-pink-300",
-      additionalPhotos: [
-        { id: 1, type: "photo", caption: "Party ulang tahunmu", icon: "🎉" },
-        { id: 2, type: "video", title: "Video: Celebration Time!", icon: "🥳" },
-        { id: 3, type: "photo", caption: "Ketika kita jalan-jalan", icon: "🚶‍♀️" },
-        { id: 4, type: "photo", caption: "Candid moment yang lucu", icon: "😂" },
-        { id: 5, type: "video", title: "Video: Adventure Together", icon: "🏞️" },
-        { id: 6, type: "photo", caption: "Portrait terbaikmu", icon: "👑" },
+      color: "bg-gradient-to-br from-purple-200 to-pink-200",
+      items: [
+        { id: 1, type: "photo", text: "Party ulang tahun", icon: "🎉" },
+        { id: 2, type: "video", text: "Celebration Time!", icon: "🥳" },
+        { id: 3, type: "photo", text: "Jalan-jalan", icon: "🚶‍♀️" },
+        { id: 4, type: "photo", text: "Candid moment", icon: "😂" },
+        { id: 5, type: "video", text: "Adventure", icon: "🏞️" },
+        { id: 6, type: "photo", text: "Portrait terbaik", icon: "👑" },
       ]
     }
   };
 
-  const mainGalleryPhotos = [
-    photoCollections.photo1,
-    photoCollections.photo2,
-    photoCollections.photo3,
-  ];
+  const photos = Object.values(photoCollections);
 
   const handlePhotoClick = (photoId) => {
     setSelectedPhoto(photoId);
@@ -543,230 +372,127 @@ function GalleryScene({ name, onNext }) {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
-    setTimeout(() => {
-      setSelectedPhoto(null);
-    }, 300);
+    setSelectedPhoto(null);
   };
 
   const selectedCollection = selectedPhoto ? photoCollections[selectedPhoto] : null;
 
   return (
-    <div className="h-full relative">
-      <motion.div
-        initial={{ opacity: 0 }}
-        animate={{ opacity: 1 }}
-        exit={{ opacity: 0 }}
-        className="h-full flex flex-col bg-gradient-to-b from-blue-50 to-pink-50"
-      >
-        <div className="pt-12 px-6 text-center">
-          <motion.h2
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent"
-          >
-            📸 Galeri Kenangan Kita
-          </motion.h2>
-          <p className="text-gray-600 mt-2">Klik foto favorit untuk melihat lebih banyak kenangan</p>
+    <div className="h-full flex flex-col">
+      <div className="pt-12 px-4 text-center">
+        <h2 className="text-2xl md:text-3xl font-bold text-pink-600">
+          📸 Galeri Kenangan Kita
+        </h2>
+        <p className="text-gray-600 mt-1">Klik foto untuk melihat koleksi lengkap</p>
+      </div>
+
+      <div className="flex-1 overflow-y-auto p-4">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
+          {photos.map((photo) => (
+            <div
+              key={photo.id}
+              className="aspect-square rounded-2xl overflow-hidden shadow-lg cursor-pointer border-4 border-white relative"
+              onClick={() => handlePhotoClick(photo.id)}
+            >
+              <div className={`w-full h-full ${photo.color} flex items-center justify-center`}>
+                <span className="text-4xl">{photo.icon}</span>
+              </div>
+              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 text-white">
+                <p className="font-bold">{photo.title}</p>
+                <p className="text-xs">6+ foto & video</p>
+              </div>
+            </div>
+          ))}
         </div>
 
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="space-y-8">
-            <div className="text-center">
-              <h3 className="text-xl font-bold text-pink-700 mb-4">📁 Album Bersama</h3>
-              <p className="text-gray-600">Kumpulan momen indah kita berdua</p>
-            </div>
-            
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {mainGalleryPhotos.map((photo, index) => (
-                <motion.div
-                  key={photo.id}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.1 }}
-                  whileHover={{ scale: 1.05 }}
-                  whileTap={{ scale: 0.95 }}
-                  className="aspect-square rounded-2xl overflow-hidden shadow-xl cursor-pointer border-4 border-white relative group"
-                  onClick={() => handlePhotoClick(photo.id)}
+        <div className="mt-8 text-center">
+          <p className="text-gray-500 text-sm">
+            Pilih salah satu album untuk melihat kenangan lengkap
+          </p>
+        </div>
+      </div>
+
+      {/* Next Button */}
+      <div className="p-4 text-center">
+        <button
+          onClick={onNext}
+          className="bg-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:bg-pink-600 transition-all"
+        >
+          Lanjut ke Surat Cinta →
+        </button>
+      </div>
+
+      {/* Popup Modal */}
+      {isPopupOpen && selectedCollection && (
+        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
+          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+            <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
+              <div className="flex justify-between items-center">
+                <div>
+                  <h3 className="text-xl font-bold">{selectedCollection.title}</h3>
+                  <p className="text-sm opacity-90">{selectedCollection.description}</p>
+                </div>
+                <button
+                  onClick={handleClosePopup}
+                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"
                 >
-                  <div className={`w-full h-full bg-gradient-to-br ${photo.color} flex items-center justify-center`}>
-                    <span className="text-5xl">{photo.icon}</span>
-                  </div>
-                  <div className="absolute inset-0 bg-black/0 group-hover:bg-black/20 transition-all duration-300 flex items-center justify-center">
-                    <div className="opacity-0 group-hover:opacity-100 transition-all duration-300 bg-white/90 p-4 rounded-lg shadow-lg">
-                      <p className="text-pink-600 font-bold">Klik untuk lihat lebih banyak!</p>
-                    </div>
-                  </div>
-                  <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-4 text-white">
-                    <p className="font-bold">{photo.title}</p>
-                    <p className="text-sm opacity-90">📁 6+ foto & video</p>
-                  </div>
-                </motion.div>
-              ))}
+                  <X className="w-4 h-4" />
+                </button>
+              </div>
             </div>
 
-            <div className="bg-white/50 rounded-2xl p-6 mt-8">
-              <h4 className="text-lg font-bold text-purple-700 mb-4 flex items-center gap-2">
-                <Sparkles className="w-5 h-5" />
-                Cara Menggunakan Galeri
-              </h4>
-              <ul className="space-y-2 text-gray-700">
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  Klik salah satu foto di atas untuk membuka koleksi lengkap
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  Setiap foto utama memiliki 6+ foto dan video kenangan
-                </li>
-                <li className="flex items-center gap-2">
-                  <span className="w-2 h-2 bg-pink-500 rounded-full"></span>
-                  Scroll untuk melihat semua konten dalam popup
-                </li>
-              </ul>
-            </div>
+            <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
+              {/* Main Photo */}
+              <div className="mb-6">
+                <div className={`aspect-video rounded-xl ${selectedCollection.color} flex items-center justify-center mb-2`}>
+                  <span className="text-5xl">{selectedCollection.icon}</span>
+                </div>
+                <p className="text-center text-gray-600 text-sm italic">
+                  "Momen spesial yang tak terlupakan"
+                </p>
+              </div>
 
-            <div className="text-center">
-              <p className="text-sm text-gray-500 mb-4">
-                Total koleksi: {Object.keys(photoCollections).length * 7} foto & video
-              </p>
+              {/* Collection Items */}
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
+                {selectedCollection.items.map((item) => (
+                  <div
+                    key={item.id}
+                    className={`aspect-square rounded-lg flex flex-col items-center justify-center p-2 ${
+                      item.type === 'video' 
+                        ? 'bg-gradient-to-br from-blue-100 to-cyan-100' 
+                        : 'bg-gradient-to-br from-pink-100 to-purple-100'
+                    }`}
+                  >
+                    <span className="text-2xl mb-1">{item.icon}</span>
+                    <p className="text-xs text-center font-medium">{item.text}</p>
+                    <p className="text-[10px] text-gray-500 mt-1">
+                      {item.type === 'video' ? 'VIDEO' : 'FOTO'}
+                    </p>
+                  </div>
+                ))}
+              </div>
+
+              {/* Message */}
+              <div className="bg-pink-50 rounded-xl p-4 border border-pink-200">
+                <p className="text-gray-700 text-sm">
+                  "Terima kasih untuk setiap momen indah bersamamu, {name || "sayang"}. 
+                  Aku bersyukur atas setiap kenangan yang kita buat bersama." 💕
+                </p>
+                <p className="text-right text-pink-600 font-bold text-sm mt-2">
+                  - Mas Bagus
+                </p>
+              </div>
             </div>
           </div>
         </div>
-
-        <div className="p-6 text-center">
-          <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Klik area mana saja (kecuali tombol) untuk melanjutkan...
-            <Sparkles className="w-4 h-4" />
-          </p>
-        </div>
-      </motion.div>
-      
-      {/* Transparent clickable overlay untuk next scene */}
-      <div 
-        className="absolute bottom-0 left-0 right-0 h-16 cursor-pointer"
-        onClick={onNext}
-        title="Klik untuk lanjut ke scene berikutnya"
-      />
-
-      {/* Popup untuk menampilkan koleksi lengkap */}
-      <AnimatePresence>
-        {isPopupOpen && selectedCollection && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={handleClosePopup}
-          >
-            <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl"
-              onClick={(e) => e.stopPropagation()}
-            >
-              <div className="p-6 border-b border-pink-200 bg-gradient-to-r from-pink-500 to-purple-500 text-white">
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold">
-                      {selectedCollection.title}
-                    </h3>
-                    <p className="opacity-90">
-                      {selectedCollection.description}
-                    </p>
-                  </div>
-                  <motion.button
-                    whileHover={{ scale: 1.1 }}
-                    whileTap={{ scale: 0.9 }}
-                    onClick={handleClosePopup}
-                    className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
-                  >
-                    <X className="w-5 h-5" />
-                  </motion.button>
-                </div>
-              </div>
-
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-120px)]">
-                {/* Foto utama */}
-                <div className="mb-8">
-                  <div className={`aspect-video rounded-2xl overflow-hidden shadow-lg mb-4 bg-gradient-to-br ${selectedCollection.color} flex items-center justify-center`}>
-                    <span className="text-7xl">{selectedCollection.icon}</span>
-                  </div>
-                  <p className="text-center text-gray-600 italic">
-                    "Foto utama yang mengawali semua kenangan indah kita"
-                  </p>
-                </div>
-
-                {/* Grid foto dan video */}
-                <div className="mb-8">
-                  <h4 className="text-xl font-bold text-pink-700 mb-4 flex items-center gap-2">
-                    <Sparkles className="w-5 h-5" />
-                    Koleksi Lengkap ({selectedCollection.additionalPhotos.length} item)
-                  </h4>
-                  
-                  <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
-                    {selectedCollection.additionalPhotos.map((item) => (
-                      <motion.div
-                        key={item.id}
-                        initial={{ opacity: 0, y: 20 }}
-                        animate={{ opacity: 1, y: 0 }}
-                        className={`rounded-xl overflow-hidden shadow-lg border-2 border-white group cursor-pointer ${item.type === 'video' ? 'relative' : ''}`}
-                        whileHover={{ scale: 1.02 }}
-                      >
-                        {item.type === 'photo' ? (
-                          <div className="aspect-square bg-gradient-to-br from-pink-100 to-purple-100 flex flex-col items-center justify-center p-4">
-                            <span className="text-4xl mb-2">{item.icon}</span>
-                            <p className="text-center text-gray-700 font-medium">{item.caption}</p>
-                            <p className="text-sm text-gray-500 mt-2">Foto kenangan</p>
-                          </div>
-                        ) : (
-                          <div className="aspect-square bg-gradient-to-br from-blue-100 to-cyan-100 flex flex-col items-center justify-center p-4 relative">
-                            <div className="absolute top-2 right-2 bg-red-500 text-white px-2 py-1 rounded-full text-xs font-bold">
-                              VIDEO
-                            </div>
-                            <span className="text-4xl mb-2">{item.icon}</span>
-                            <p className="text-center text-gray-700 font-medium">{item.title}</p>
-                            <div className="mt-4 flex items-center justify-center">
-                              <button className="bg-black/20 hover:bg-black/30 rounded-full p-3 transition-all">
-                                <span className="text-xl">▶️</span>
-                              </button>
-                            </div>
-                          </div>
-                        )}
-                      </motion.div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Pesan romantis */}
-                <div className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-200">
-                  <div className="flex items-center gap-3 mb-4">
-                    <Heart className="w-6 h-6 text-pink-500 fill-pink-500" />
-                    <h5 className="text-lg font-bold text-pink-700">Pesan dari Mas Bagus</h5>
-                  </div>
-                  <p className="text-gray-700 italic">
-                    "Setiap foto dan video ini adalah bukti betapa indahnya perjalanan kita bersama. 
-                    Terima kasih telah menjadi bagian dari setiap momen berharga ini, {name || "sayang"}. 
-                    Aku bersyukur bisa merekam setiap tawa, setiap cerita, dan setiap perkembangan kita."
-                  </p>
-                  <p className="text-right text-pink-600 font-bold mt-4">
-                    - Mas Bagus 💕
-                  </p>
-                </div>
-              </div>
-            </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+      )}
     </div>
   );
 }
 
-// SCENE 4: Love Letter Scene
+// SCENE 4: Love Letter Scene - SIMPLIFIED
 function LoveLetterScene({ name, onNext }) {
-  const [visibleMessages, setVisibleMessages] = useState([]);
-  const [isComplete, setIsComplete] = useState(false);
+  const [step, setStep] = useState(0);
   
   const messages = [
     `Dan di hari ulang tahunmu ini, ${name || "sayang"}, aku ingin mengucapkan terima kasih.`,
@@ -777,118 +503,69 @@ function LoveLetterScene({ name, onNext }) {
   ];
 
   useEffect(() => {
-    setVisibleMessages([]);
-    setIsComplete(false);
-    
-    const timers = [];
-    let currentIndex = 0;
-    
-    const showMessage = (index) => {
-      if (index < messages.length) {
-        const timer = setTimeout(() => {
-          setVisibleMessages(prev => [...prev, messages[index]]);
-          if (index === messages.length - 1) {
-            const completeTimer = setTimeout(() => {
-              setIsComplete(true);
-            }, 1000);
-            timers.push(completeTimer);
-          } else {
-            showMessage(index + 1);
-          }
-        }, 2000);
-        timers.push(timer);
+    const timer = setTimeout(() => {
+      if (step < messages.length) {
+        setStep(step + 1);
       }
-    };
+    }, 2000);
     
-    const startTimer = setTimeout(() => {
-      showMessage(0);
-    }, 500);
-    timers.push(startTimer);
-    
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [step]);
+
+  const canContinue = step >= messages.length;
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      exit={{ opacity: 0 }}
-      className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-rose-50 to-pink-100 relative overflow-hidden cursor-pointer"
-      onClick={isComplete ? onNext : undefined}
+    <div 
+      className="h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-rose-50 to-pink-100"
+      onClick={canContinue ? onNext : undefined}
     >
-      <div className="absolute top-10 left-10 animate-bounce">
-        <Heart className="w-16 h-16 text-pink-300/30" />
-      </div>
-      <div className="absolute bottom-10 right-10 animate-pulse">
-        <Star className="w-12 h-12 text-yellow-300/30" />
-      </div>
-
-      <div className="max-w-2xl w-full bg-white/90 backdrop-blur-sm rounded-3xl p-8 shadow-xl border border-pink-200 relative z-10">
-        <div className="text-center mb-8">
-          <div className="inline-block p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-4">
-            <Heart className="w-8 h-8 text-white fill-white" />
+      <div className="max-w-2xl w-full bg-white/90 rounded-2xl p-6 shadow-lg border border-pink-200">
+        <div className="text-center mb-6">
+          <div className="inline-block p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-3">
+            <Heart className="w-6 h-6 text-white fill-white" />
           </div>
-          <h3 className="text-2xl font-bold text-pink-700">💌 Surat Untukmu</h3>
-          <p className="text-gray-600">Dari Mas Bagus, dengan cinta yang tak terhingga</p>
+          <h3 className="text-xl font-bold text-pink-700">💌 Surat Untukmu</h3>
+          <p className="text-gray-600 text-sm">Dari Mas Bagus, dengan cinta</p>
         </div>
 
-        <div className="space-y-6 min-h-[300px]">
-          {visibleMessages.map((message, index) => (
-            <motion.p
-              key={`message-${index}`}
-              initial={{ opacity: 0, x: -20 }}
-              animate={{ opacity: 1, x: 0 }}
-              transition={{ delay: index * 0.1 }}
-              className="text-lg text-gray-700 leading-relaxed"
-            >
+        <div className="space-y-4 min-h-[200px]">
+          {messages.slice(0, step).map((message, index) => (
+            <p key={index} className="text-gray-700">
               {message}
-            </motion.p>
+            </p>
           ))}
           
-          {visibleMessages.length < messages.length && (
-            <div className="flex items-center justify-center h-6">
-              <motion.div
-                animate={{ opacity: [0.3, 1, 0.3] }}
-                transition={{ duration: 1.5, repeat: Infinity }}
-                className="text-pink-400"
-              >
-                ●
-              </motion.div>
+          {step < messages.length && (
+            <div className="flex justify-center">
+              <div className="animate-pulse text-pink-400">●</div>
             </div>
           )}
         </div>
 
-        {isComplete && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="mt-8 pt-8 border-t border-pink-200"
-          >
-            <p className="text-right text-pink-600 font-bold text-xl">
+        {canContinue && (
+          <div className="mt-6 pt-4 border-t border-pink-200">
+            <p className="text-right text-pink-600 font-bold">
               Dengan cinta,<br />
               Mas Bagus 💖
             </p>
-          </motion.div>
+          </div>
         )}
 
-        <div className="mt-8 text-center">
+        <div className="mt-6 text-center">
           <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
             <Sparkles className="w-4 h-4" />
-            {isComplete ? "Sentuh layar untuk kejutan terakhir..." : "Tunggu pesan berikutnya..."}
+            {canContinue ? "Sentuh layar untuk kejutan terakhir..." : "Membaca pesan..."}
             <Sparkles className="w-4 h-4" />
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// SCENE 5: Final Scene
-function FinalScene({ name, onPlayAudio }) {
-  const [visibleWishes, setVisibleWishes] = useState([]);
-  const [showFinalMessage, setShowFinalMessage] = useState(false);
+// SCENE 5: Final Scene - SIMPLIFIED
+function FinalScene({ name }) {
+  const [step, setStep] = useState(0);
   
   const wishes = [
     "Semoga kamu selalu diberikan kesehatan yang prima,",
@@ -903,215 +580,108 @@ function FinalScene({ name, onPlayAudio }) {
   ];
 
   useEffect(() => {
-    setVisibleWishes([]);
-    setShowFinalMessage(false);
-    
-    const timers = [];
-    let currentIndex = 0;
-    
-    const showWish = (index) => {
-      if (index < wishes.length) {
-        const timer = setTimeout(() => {
-          setVisibleWishes(prev => [...prev, wishes[index]]);
-          if (index === wishes.length - 1) {
-            const finalTimer = setTimeout(() => {
-              setShowFinalMessage(true);
-            }, 1500);
-            timers.push(finalTimer);
-          } else {
-            showWish(index + 1);
-          }
-        }, 1500);
-        timers.push(timer);
+    const timer = setTimeout(() => {
+      if (step < wishes.length) {
+        setStep(step + 1);
       }
-    };
+    }, 1500);
     
-    const startTimer = setTimeout(() => {
-      showWish(0);
-    }, 500);
-    timers.push(startTimer);
-    
-    return () => {
-      timers.forEach(timer => clearTimeout(timer));
-    };
-  }, []);
+    return () => clearTimeout(timer);
+  }, [step]);
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-50 to-blue-50 relative overflow-y-auto"
-    >
-      <div className="absolute inset-0">
-        {[...Array(10)].map((_, i) => (
-          <motion.div
-            key={i}
-            className="absolute text-4xl"
-            style={{
-              left: `${Math.random() * 100}%`,
-              top: `${Math.random() * 100}%`,
-            }}
-            animate={{
-              y: [0, -100, 0],
-              rotate: [0, 360],
-              opacity: [0.3, 0.8, 0.3],
-            }}
-            transition={{
-              duration: Math.random() * 5 + 5,
-              repeat: Infinity,
-              ease: "linear",
-            }}
-          >
-            {["💖", "✨", "🎀", "🎉", "🌸"][i % 5]}
-          </motion.div>
-        ))}
-      </div>
-
-      <div className="max-w-2xl w-full space-y-8 relative z-10">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring" }}
-          className="relative mx-auto w-64 h-64"
-        >
-          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full blur-lg opacity-50"></div>
-          <div className="relative w-full h-full bg-white rounded-full p-2">
-            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-6xl">💑</span>
-            </div>
-          </div>
-          <motion.div
-            animate={{ rotate: 360 }}
-            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-            className="absolute -top-4 -left-4"
-          >
-            <Star className="w-12 h-12 text-yellow-400 fill-yellow-400" />
-          </motion.div>
-        </motion.div>
-
-        <div className="text-center space-y-4">
-          <motion.h2
-            initial={{ y: -20, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent"
-          >
+    <div className="min-h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-purple-50 to-blue-50">
+      <div className="max-w-2xl w-full space-y-6">
+        <div className="text-center">
+          <h2 className="text-3xl font-bold text-pink-600">
             Selamat ulang tahun, {name || "sayang"}! 💝
-          </motion.h2>
-          
-          <p className="text-lg text-gray-700">
-            Ini adalah hari untuk merayakan kamu: setiap versi dirimu yang dulu, yang sekarang, dan yang akan datang.
+          </h2>
+          <p className="text-gray-700 mt-2">
+            Ini adalah hari untuk merayakan kamu
           </p>
         </div>
 
-        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-pink-200">
+        <div className="relative mx-auto w-48 h-48">
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full blur-lg opacity-50"></div>
+          <div className="relative w-full h-full bg-white rounded-full p-2">
+            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center">
+              <span className="text-5xl">💑</span>
+            </div>
+          </div>
+        </div>
+
+        <div className="bg-white/80 rounded-2xl p-4 shadow-lg">
           <div className="space-y-3">
-            {visibleWishes.map((wish, index) => (
-              <motion.p
-                key={`wish-${index}`}
-                initial={{ opacity: 0, x: -10 }}
-                animate={{ opacity: 1, x: 0 }}
-                className="text-gray-700"
-              >
+            {wishes.slice(0, step).map((wish, index) => (
+              <p key={index} className="text-gray-700">
                 ✨ {wish}
-              </motion.p>
+              </p>
             ))}
             
-            {visibleWishes.length < wishes.length && (
-              <div className="flex items-center justify-center h-4">
-                <motion.div
-                  animate={{ opacity: [0.3, 1, 0.3] }}
-                  transition={{ duration: 1.5, repeat: Infinity }}
-                  className="text-pink-400"
-                >
-                  ●
-                </motion.div>
+            {step < wishes.length && (
+              <div className="flex justify-center">
+                <div className="animate-pulse text-pink-400">●</div>
               </div>
             )}
           </div>
         </div>
 
-        {showFinalMessage && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="text-center"
-          >
-            <p className="text-2xl font-bold text-pink-600 mb-2">
-              I love you dede cantiiikkk, kesayangan mas bagus 💕
+        {step >= wishes.length && (
+          <div className="text-center">
+            <p className="text-xl font-bold text-pink-600 mb-2">
+              I love you dede cantiiikkk 💕
             </p>
-            <p className="text-gray-600">Kamu adalah anugerah terindah dalam hidupku</p>
-          </motion.div>
+            <p className="text-gray-600">Kamu adalah anugerah terindah</p>
+          </div>
         )}
 
-        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={onPlayAudio}
-            className="flex-1 max-w-xs bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3"
-          >
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3">
             <Music className="w-5 h-5" />
-            Putar Pesan Suara dari Mas Bagus
-          </motion.button>
+            Putar Pesan Suara
+          </button>
           
-          <motion.button
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            className="flex-1 max-w-xs border-2 border-pink-400 text-pink-600 p-4 rounded-2xl font-bold flex items-center justify-center gap-3"
-          >
+          <button className="border-2 border-pink-400 text-pink-600 p-3 rounded-2xl font-bold flex items-center justify-center gap-3">
             <Gift className="w-5 h-5" />
-            Lihat Hadiah Rahasia 🎁
-          </motion.button>
+            Lihat Hadiah 🎁
+          </button>
         </div>
 
-        <div className="text-center pt-8">
+        <div className="text-center pt-6">
           <p className="text-sm text-gray-500">
-            Made with 💖 by Mas Bagus, for the only {name || "Dede"} in the universe.
+            Made with 💖 by Mas Bagus
           </p>
-          <p className="text-xs text-gray-400 mt-2">
-            {new Date().toLocaleDateString('id-ID', { 
-              weekday: 'long', 
-              year: 'numeric', 
-              month: 'long', 
-              day: 'numeric' 
-            })}
+          <p className="text-xs text-gray-400 mt-1">
+            {new Date().toLocaleDateString('id-ID')}
           </p>
         </div>
       </div>
-    </motion.div>
+    </div>
   );
 }
 
-// Confetti Component
+// Confetti Component - SIMPLIFIED
 function Confetti() {
   return (
     <div className="fixed inset-0 pointer-events-none z-50">
-      {[...Array(100)].map((_, i) => (
-        <motion.div
+      {Array.from({ length: 50 }).map((_, i) => (
+        <div
           key={i}
           className="absolute w-2 h-2 rounded-full"
           style={{
             left: `${Math.random() * 100}%`,
-            backgroundColor: [
-              '#f472b6', '#ec4899', '#db2777', '#c026d3', '#a855f7'
-            ][Math.floor(Math.random() * 5)],
-          }}
-          initial={{
-            y: -20,
-            x: Math.random() * 100 - 50,
-            rotate: 0,
-          }}
-          animate={{
-            y: ['0vh', '100vh'],
-            x: [0, Math.random() * 200 - 100],
-            rotate: [0, 360],
-          }}
-          transition={{
-            duration: Math.random() * 3 + 2,
-            ease: "linear",
+            top: `${Math.random() * 100}%`,
+            backgroundColor: ['#f472b6', '#ec4899', '#db2777'][Math.floor(Math.random() * 3)],
+            animation: `fall ${Math.random() * 2 + 1}s linear infinite`
           }}
         />
       ))}
+      <style jsx>{`
+        @keyframes fall {
+          0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
+          100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
+        }
+      `}</style>
     </div>
   );
 }
