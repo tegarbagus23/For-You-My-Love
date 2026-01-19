@@ -841,4 +841,277 @@ function LoveLetterScene({ name, onNext }) {
               initial={{ opacity: 0, x: -20 }}
               animate={{ opacity: 1, x: 0 }}
               transition={{ delay: index * 0.1 }}
-              className="text-lg text-gray
+              className="text-lg text-gray-700 leading-relaxed"
+            >
+              {message}
+            </motion.p>
+          ))}
+          
+          {visibleMessages.length < messages.length && (
+            <div className="flex items-center justify-center h-6">
+              <motion.div
+                animate={{ opacity: [0.3, 1, 0.3] }}
+                transition={{ duration: 1.5, repeat: Infinity }}
+                className="text-pink-400"
+              >
+                ●
+              </motion.div>
+            </div>
+          )}
+        </div>
+
+        {isComplete && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            className="mt-8 pt-8 border-t border-pink-200"
+          >
+            <p className="text-right text-pink-600 font-bold text-xl">
+              Dengan cinta,<br />
+              Mas Bagus 💖
+            </p>
+          </motion.div>
+        )}
+
+        <div className="mt-8 text-center">
+          <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
+            <Sparkles className="w-4 h-4" />
+            {isComplete ? "Sentuh layar untuk kejutan terakhir..." : "Tunggu pesan berikutnya..."}
+            <Sparkles className="w-4 h-4" />
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// SCENE 5: Final Scene
+function FinalScene({ name, onPlayAudio }) {
+  const [visibleWishes, setVisibleWishes] = useState([]);
+  const [showFinalMessage, setShowFinalMessage] = useState(false);
+  
+  const wishes = [
+    "Semoga kamu selalu diberikan kesehatan yang prima,",
+    "semangat yang tak pernah padam, dan hati yang selalu muda.",
+    "Agar kamu bisa terus menjelajahi dunia",
+    "dan menikmati setiap petualangan indah yang menantimu.",
+    "Aku berdoa agar semua impian dan cita-citamu semakin dekat untuk digenggam.",
+    "Semoga kamu diberi kekuatan untuk mengejar apa yang membuat jiwa bersemangat,",
+    "dan keberanian untuk melewati setiap rintangan.",
+    "Aku akan selalu di sini untuk mendukungmu.",
+    "Aku di sini untuk semuanya."
+  ];
+
+  useEffect(() => {
+    setVisibleWishes([]);
+    setShowFinalMessage(false);
+    
+    const timers = [];
+    let currentIndex = 0;
+    
+    const showWish = (index) => {
+      if (index < wishes.length) {
+        const timer = setTimeout(() => {
+          setVisibleWishes(prev => [...prev, wishes[index]]);
+          if (index === wishes.length - 1) {
+            const finalTimer = setTimeout(() => {
+              setShowFinalMessage(true);
+            }, 1500);
+            timers.push(finalTimer);
+          } else {
+            showWish(index + 1);
+          }
+        }, 1500);
+        timers.push(timer);
+      }
+    };
+    
+    const startTimer = setTimeout(() => {
+      showWish(0);
+    }, 500);
+    timers.push(startTimer);
+    
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, []);
+
+  return (
+    <motion.div
+      initial={{ opacity: 0 }}
+      animate={{ opacity: 1 }}
+      className="h-full flex flex-col items-center justify-center p-6 bg-gradient-to-b from-purple-50 to-blue-50 relative overflow-y-auto"
+    >
+      <div className="absolute inset-0">
+        {[...Array(10)].map((_, i) => (
+          <motion.div
+            key={i}
+            className="absolute text-4xl"
+            style={{
+              left: `${Math.random() * 100}%`,
+              top: `${Math.random() * 100}%`,
+            }}
+            animate={{
+              y: [0, -100, 0],
+              rotate: [0, 360],
+              opacity: [0.3, 0.8, 0.3],
+            }}
+            transition={{
+              duration: Math.random() * 5 + 5,
+              repeat: Infinity,
+              ease: "linear",
+            }}
+          >
+            {["💖", "✨", "🎀", "🎉", "🌸"][i % 5]}
+          </motion.div>
+        ))}
+      </div>
+
+      <div className="max-w-2xl w-full space-y-8 relative z-10">
+        <motion.div
+          initial={{ scale: 0 }}
+          animate={{ scale: 1 }}
+          transition={{ type: "spring" }}
+          className="relative mx-auto w-64 h-64"
+        >
+          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full blur-lg opacity-50"></div>
+          <div className="relative w-full h-full bg-white rounded-full p-2">
+            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center">
+              <span className="text-6xl">💑</span>
+            </div>
+          </div>
+          <motion.div
+            animate={{ rotate: 360 }}
+            transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+            className="absolute -top-4 -left-4"
+          >
+            <Star className="w-12 h-12 text-yellow-400 fill-yellow-400" />
+          </motion.div>
+        </motion.div>
+
+        <div className="text-center space-y-4">
+          <motion.h2
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent"
+          >
+            Selamat ulang tahun, {name || "sayang"}! 💝
+          </motion.h2>
+          
+          <p className="text-lg text-gray-700">
+            Ini adalah hari untuk merayakan kamu: setiap versi dirimu yang dulu, yang sekarang, dan yang akan datang.
+          </p>
+        </div>
+
+        <div className="bg-white/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-pink-200">
+          <div className="space-y-3">
+            {visibleWishes.map((wish, index) => (
+              <motion.p
+                key={`wish-${index}`}
+                initial={{ opacity: 0, x: -10 }}
+                animate={{ opacity: 1, x: 0 }}
+                className="text-gray-700"
+              >
+                ✨ {wish}
+              </motion.p>
+            ))}
+            
+            {visibleWishes.length < wishes.length && (
+              <div className="flex items-center justify-center h-4">
+                <motion.div
+                  animate={{ opacity: [0.3, 1, 0.3] }}
+                  transition={{ duration: 1.5, repeat: Infinity }}
+                  className="text-pink-400"
+                >
+                  ●
+                </motion.div>
+              </div>
+            )}
+          </div>
+        </div>
+
+        {showFinalMessage && (
+          <motion.div
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 1 }}
+            className="text-center"
+          >
+            <p className="text-2xl font-bold text-pink-600 mb-2">
+              I love you dede cantiiikkk, kesayangan mas bagus 💕
+            </p>
+            <p className="text-gray-600">Kamu adalah anugerah terindah dalam hidupku</p>
+          </motion.div>
+        )}
+
+        <div className="flex flex-col sm:flex-row gap-4 justify-center pt-4">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={onPlayAudio}
+            className="flex-1 max-w-xs bg-gradient-to-r from-pink-500 to-rose-500 text-white p-4 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3"
+          >
+            <Music className="w-5 h-5" />
+            Putar Pesan Suara dari Mas Bagus
+          </motion.button>
+          
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            className="flex-1 max-w-xs border-2 border-pink-400 text-pink-600 p-4 rounded-2xl font-bold flex items-center justify-center gap-3"
+          >
+            <Gift className="w-5 h-5" />
+            Lihat Hadiah Rahasia 🎁
+          </motion.button>
+        </div>
+
+        <div className="text-center pt-8">
+          <p className="text-sm text-gray-500">
+            Made with 💖 by Mas Bagus, for the only {name || "Dede"} in the universe.
+          </p>
+          <p className="text-xs text-gray-400 mt-2">
+            {new Date().toLocaleDateString('id-ID', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
+          </p>
+        </div>
+      </div>
+    </motion.div>
+  );
+}
+
+// Confetti Component
+function Confetti() {
+  return (
+    <div className="fixed inset-0 pointer-events-none z-50">
+      {[...Array(100)].map((_, i) => (
+        <motion.div
+          key={i}
+          className="absolute w-2 h-2 rounded-full"
+          style={{
+            left: `${Math.random() * 100}%`,
+            backgroundColor: [
+              '#f472b6', '#ec4899', '#db2777', '#c026d3', '#a855f7'
+            ][Math.floor(Math.random() * 5)],
+          }}
+          initial={{
+            y: -20,
+            x: Math.random() * 100 - 50,
+            rotate: 0,
+          }}
+          animate={{
+            y: ['0vh', '100vh'],
+            x: [0, Math.random() * 200 - 100],
+            rotate: [0, 360],
+          }}
+          transition={{
+            duration: Math.random() * 3 + 2,
+            ease: "linear",
+          }}
+        />
+      ))}
+    </div>
+  );
+}
