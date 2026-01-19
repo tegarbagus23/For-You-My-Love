@@ -1,12 +1,9 @@
 import { useState, useEffect } from "react";
-import { motion, AnimatePresence } from "framer-motion";
-import { Heart, Star, Sparkles, Music, Gift, X } from "lucide-react";
 
 export default function BirthdayWebsite() {
   const [scene, setScene] = useState(0);
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
-  const [showConfetti, setShowConfetti] = useState(false);
   const correctDate = "14-02-2003";
 
   const next = () => {
@@ -20,14 +17,6 @@ export default function BirthdayWebsite() {
       setScene(scene - 1);
     }
   };
-
-  useEffect(() => {
-    if (scene === 2) {
-      setShowConfetti(true);
-      const timer = setTimeout(() => setShowConfetti(false), 3000);
-      return () => clearTimeout(timer);
-    }
-  }, [scene]);
 
   const renderScene = () => {
     switch(scene) {
@@ -47,9 +36,9 @@ export default function BirthdayWebsite() {
       case 2:
         return <Scene2 name={name} next={next} />;
       case 3:
-        return <GalleryScene name={name} onNext={next} />;
+        return <GalleryScene name={name} next={next} />;
       case 4:
-        return <LoveLetterScene name={name} onNext={next} />;
+        return <LoveLetterScene name={name} next={next} />;
       case 5:
         return <FinalScene name={name} />;
       default:
@@ -65,33 +54,22 @@ export default function BirthdayWebsite() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100 overflow-hidden relative">
-      <div className="absolute inset-0 overflow-hidden">
-        <div className="absolute top-10 left-10 w-20 h-20 bg-pink-300 rounded-full opacity-20 animate-pulse"></div>
-        <div className="absolute bottom-20 right-20 w-32 h-32 bg-purple-300 rounded-full opacity-10"></div>
-      </div>
-
-      {showConfetti && <Confetti />}
-
-      {/* Navigation Controls */}
+    <div className="min-h-screen bg-gradient-to-br from-pink-100 via-purple-50 to-blue-100">
+      {/* Navigation */}
       {scene > 0 && scene < 5 && (
-        <div className="absolute top-4 left-4 z-20">
-          <motion.button
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
+        <div className="fixed top-4 left-4 z-50">
+          <button
             onClick={prev}
-            className="bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-pink-200 text-pink-600 flex items-center gap-2 text-sm font-medium"
+            className="bg-white/80 px-4 py-2 rounded-full shadow-lg border border-pink-200 text-pink-600 text-sm font-medium"
           >
             ← Kembali
-          </motion.button>
+          </button>
         </div>
       )}
 
       {/* Scene Indicator */}
-      <div className="absolute top-4 right-4 z-20">
-        <div className="flex items-center gap-2 bg-white/80 backdrop-blur-sm px-4 py-2 rounded-full shadow-lg border border-pink-200">
+      <div className="fixed top-4 right-4 z-50">
+        <div className="flex items-center gap-2 bg-white/80 px-4 py-2 rounded-full shadow-lg border border-pink-200">
           {[0, 1, 2, 3, 4, 5].map((index) => (
             <div
               key={index}
@@ -101,101 +79,96 @@ export default function BirthdayWebsite() {
         </div>
       </div>
 
-      <AnimatePresence mode="wait">
-        <motion.div
-          key={scene}
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          exit={{ opacity: 0, y: -20 }}
-          className="h-screen flex flex-col"
-        >
-          {renderScene()}
-        </motion.div>
-      </AnimatePresence>
+      {renderScene()}
     </div>
   );
 }
 
-// SCENE 0: Login Page - SIMPLIFIED
+// SCENE 0: Login Page
 function Scene0({ name, setName, date, setDate, correctDate, next }) {
-  const isFormValid = name.trim() !== "" && date === correctDate;
+  const [error, setError] = useState("");
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (isFormValid) {
-      next();
+    if (!name.trim()) {
+      setError("Masukkan nama panggilanmu");
+      return;
     }
+    if (date !== correctDate) {
+      setError("Tanggal lahir salah! Coba ingat-ingat lagi");
+      return;
+    }
+    next();
   };
 
   return (
-    <div className="h-full flex flex-col items-center justify-center p-4">
-      <div className="text-center mb-8">
-        <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-500 to-purple-500 bg-clip-text text-transparent">
-          🎀 Gerbang Cinta 🎀
-        </h1>
-        <p className="text-gray-600 mt-2">Masukkan kode rahasia untuk masuk</p>
-      </div>
-
-      <form onSubmit={handleSubmit} className="w-full max-w-md space-y-6 bg-white/80 backdrop-blur-sm p-6 rounded-3xl shadow-lg border border-pink-200">
-        <div className="space-y-4">
-          <div>
-            <label className="block text-sm font-medium text-pink-700 mb-2">
-              💖 Nama Panggilan Spesial
-            </label>
-            <input
-              type="text"
-              placeholder="Masukkan nama panggilanmu..."
-              className="w-full p-3 rounded-2xl border-2 border-pink-300 focus:border-pink-500 outline-none transition-all bg-white"
-              value={name}
-              onChange={(e) => setName(e.target.value)}
-              required
-            />
-          </div>
-
-          <div>
-            <label className="block text-sm font-medium text-pink-700 mb-2">
-              📅 Tanggal Lahir (DD-MM-YYYY)
-            </label>
-            <input
-              type="text"
-              placeholder="Misal: 14-02-2003"
-              className="w-full p-3 rounded-2xl border-2 border-pink-300 focus:border-pink-500 outline-none transition-all bg-white"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              required
-            />
-          </div>
-
-          {date && date !== correctDate && (
-            <p className="text-red-400 text-sm text-center p-2 bg-red-50 rounded-lg">
-              ❤️ Coba ingat-ingat lagi sayangku! 😘
-            </p>
-          )}
+    <div className="min-h-screen flex items-center justify-center p-4">
+      <div className="w-full max-w-md">
+        <div className="text-center mb-8">
+          <h1 className="text-3xl font-bold text-pink-600 mb-2">
+            🎀 Gerbang Cinta 🎀
+          </h1>
+          <p className="text-gray-600">Masukkan kode rahasia untuk masuk</p>
         </div>
 
-        <button
-          type="submit"
-          disabled={!isFormValid}
-          className={`w-full p-3 rounded-2xl font-bold text-lg shadow-lg transition-all flex items-center justify-center gap-3 ${
-            isFormValid 
-              ? 'bg-gradient-to-r from-pink-500 to-rose-500 text-white hover:shadow-xl' 
-              : 'bg-gray-300 text-gray-500 cursor-not-allowed'
-          }`}
-        >
-          <Sparkles className="w-5 h-5" />
-          Buka Dunia Cinta Kita ✨
-          <Sparkles className="w-5 h-5" />
-        </button>
-      </form>
+        <form onSubmit={handleSubmit} className="bg-white rounded-2xl p-6 shadow-lg border border-pink-200">
+          <div className="space-y-4">
+            <div>
+              <label className="block text-sm font-medium text-pink-700 mb-2">
+                💖 Nama Panggilan Spesial
+              </label>
+              <input
+                type="text"
+                placeholder="Masukkan nama panggilanmu..."
+                className="w-full p-3 rounded-xl border-2 border-pink-300 focus:border-pink-500 outline-none"
+                value={name}
+                onChange={(e) => {
+                  setName(e.target.value);
+                  setError("");
+                }}
+              />
+            </div>
 
-      <p className="text-gray-500 text-sm mt-8 text-center">
-        🔒 Hanya untuk {name || "seseorang"} yang spesial
-      </p>
+            <div>
+              <label className="block text-sm font-medium text-pink-700 mb-2">
+                📅 Tanggal Lahir (DD-MM-YYYY)
+              </label>
+              <input
+                type="text"
+                placeholder="Misal: 14-02-2003"
+                className="w-full p-3 rounded-xl border-2 border-pink-300 focus:border-pink-500 outline-none"
+                value={date}
+                onChange={(e) => {
+                  setDate(e.target.value);
+                  setError("");
+                }}
+              />
+            </div>
+
+            {error && (
+              <div className="text-red-500 text-sm p-3 bg-red-50 rounded-lg">
+                ❤️ {error}
+              </div>
+            )}
+          </div>
+
+          <button
+            type="submit"
+            className="w-full mt-6 bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity"
+          >
+            ✨ Buka Dunia Cinta Kita ✨
+          </button>
+        </form>
+
+        <p className="text-center text-gray-500 text-sm mt-6">
+          🔒 Hanya untuk {name || "seseorang"} yang spesial
+        </p>
+      </div>
     </div>
   );
 }
 
-// SCENE 1: Opening Cinematic - SIMPLIFIED
+// SCENE 1: Opening
 function Scene1({ name, next }) {
   const [textIndex, setTextIndex] = useState(0);
   
@@ -206,237 +179,189 @@ function Scene1({ name, next }) {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (textIndex < texts.length - 1) {
+    if (textIndex < texts.length - 1) {
+      const timer = setTimeout(() => {
         setTextIndex(textIndex + 1);
-      }
-    }, 2500);
-    
-    return () => clearTimeout(timer);
+      }, 2500);
+      return () => clearTimeout(timer);
+    }
   }, [textIndex]);
 
   return (
     <div 
-      className="h-full flex flex-col items-center justify-center bg-gradient-to-br from-purple-900/90 via-pink-900/80 to-rose-900/90 text-white p-4 cursor-pointer"
-      onClick={next}
+      className="min-h-screen bg-gradient-to-br from-purple-900 via-pink-800 to-rose-900 text-white flex items-center justify-center p-4 cursor-pointer"
+      onClick={textIndex === texts.length - 1 ? next : undefined}
     >
-      <div className="text-center space-y-8 max-w-2xl">
-        <motion.div
-          initial={{ scale: 0, rotate: -180 }}
-          animate={{ scale: 1, rotate: 0 }}
-          transition={{ type: "spring", damping: 10 }}
-          className="mx-auto w-20 h-20 bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl"
-        >
-          <Heart className="w-10 h-10 fill-white" />
-        </motion.div>
+      <div className="max-w-2xl text-center">
+        <div className="w-20 h-20 mx-auto bg-gradient-to-br from-pink-500 to-rose-500 rounded-full flex items-center justify-center shadow-2xl mb-8">
+          <span className="text-3xl">❤️</span>
+        </div>
 
-        <div className="min-h-[120px] flex items-center justify-center">
-          <AnimatePresence mode="wait">
-            <motion.p
-              key={textIndex}
-              initial={{ opacity: 0, y: 20 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -20 }}
-              className="text-xl md:text-2xl font-light leading-relaxed"
-            >
-              {texts[textIndex]}
-            </motion.p>
-          </AnimatePresence>
+        <div className="min-h-[100px] flex items-center justify-center mb-8">
+          <p className="text-xl md:text-2xl leading-relaxed">
+            {texts[textIndex]}
+          </p>
         </div>
 
         {textIndex === texts.length - 1 && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="pt-8"
-          >
-            <p className="text-sm opacity-70 flex items-center justify-center gap-2 animate-pulse">
-              <Sparkles className="w-4 h-4" />
-              Sentuh layar untuk melanjutkan...
-              <Sparkles className="w-4 h-4" />
-            </p>
-          </motion.div>
+          <p className="text-sm opacity-70 animate-pulse">
+            ✨ Sentuh layar untuk melanjutkan...
+          </p>
         )}
       </div>
     </div>
   );
 }
 
-// SCENE 2: Birthday Animation - SIMPLIFIED
+// SCENE 2: Birthday
 function Scene2({ name, next }) {
   return (
     <div 
-      className="h-full flex flex-col items-center justify-center p-4 relative cursor-pointer"
+      className="min-h-screen flex flex-col items-center justify-center p-4 bg-gradient-to-b from-pink-50 to-rose-50 cursor-pointer"
       onClick={next}
     >
       <div className="text-center space-y-6">
-        <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring" }}
-          className="relative"
-        >
-          <div className="w-40 h-40 mx-auto bg-gradient-to-br from-pink-400 to-rose-500 rounded-full p-1">
-            <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
-              <span className="text-4xl">😊</span>
-            </div>
+        <div className="w-40 h-40 mx-auto bg-gradient-to-br from-pink-400 to-rose-500 rounded-full p-2">
+          <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+            <span className="text-4xl">😊</span>
           </div>
-        </motion.div>
+        </div>
 
-        <div className="space-y-2">
-          <h1 className="text-3xl md:text-4xl font-bold bg-gradient-to-r from-pink-600 to-rose-600 bg-clip-text text-transparent">
+        <div>
+          <h1 className="text-3xl md:text-4xl font-bold text-transparent bg-clip-text bg-gradient-to-r from-pink-600 to-rose-600">
             SELAMAT ULANG TAHUN!
           </h1>
-          <p className="text-2xl text-pink-700 font-bold">
+          <p className="text-2xl text-pink-700 font-bold mt-2">
             {name || "Sayangku"} 💝
           </p>
         </div>
 
-        <div className="inline-block">
-          <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full text-xl font-bold shadow-lg">
-            🎂 yang ke-23 🎂
-          </div>
+        <div className="bg-gradient-to-r from-yellow-400 to-orange-400 text-white px-6 py-2 rounded-full text-xl font-bold inline-block">
+          🎂 yang ke-23 🎂
         </div>
 
-        <div className="pt-8">
-          <p className="text-gray-600 text-sm flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            Sentuh layar untuk melihat kenangan indah kita...
-            <Sparkles className="w-4 h-4" />
-          </p>
-        </div>
+        <p className="text-gray-600 text-sm mt-8">
+          ✨ Sentuh layar untuk melihat kenangan indah kita...
+        </p>
       </div>
     </div>
   );
 }
 
-// SCENE 3: Gallery Scene - CLEAN VERSION
-function GalleryScene({ name, onNext }) {
-  const [selectedPhoto, setSelectedPhoto] = useState(null);
-  const [isPopupOpen, setIsPopupOpen] = useState(false);
+// SCENE 3: Gallery
+function GalleryScene({ name, next }) {
+  const [selectedAlbum, setSelectedAlbum] = useState(null);
 
-  const photoCollections = {
-    photo1: {
-      id: "photo1",
+  const albums = [
+    {
+      id: 1,
       title: "Momen Pertama Kita",
+      emoji: "💕",
+      color: "from-blue-200 to-purple-200",
       description: "Hari itu ketika semuanya dimulai...",
-      icon: "💕",
-      color: "bg-gradient-to-br from-blue-200 to-purple-200",
-      items: [
-        { id: 1, type: "photo", text: "Ketemu pertama kali", icon: "📸" },
-        { id: 2, type: "photo", text: "Makan bersama", icon: "🍽️" },
-        { id: 3, type: "photo", text: "Foto candid lucu", icon: "😊" },
-        { id: 4, type: "video", text: "Hari Spesial", icon: "🎬" },
-        { id: 5, type: "photo", text: "Senyum manismu", icon: "😍" },
-        { id: 6, type: "video", text: "Kenangan Liburan", icon: "✈️" },
+      photos: [
+        { id: 1, type: "photo", title: "Ketemu pertama", emoji: "📸" },
+        { id: 2, type: "photo", title: "Makan bersama", emoji: "🍽️" },
+        { id: 3, type: "photo", title: "Foto candid", emoji: "😊" },
+        { id: 4, type: "video", title: "Video spesial", emoji: "🎬" },
+        { id: 5, type: "photo", title: "Senyum manis", emoji: "😍" },
+        { id: 6, type: "video", title: "Liburan", emoji: "✈️" },
       ]
     },
-    photo2: {
-      id: "photo2",
+    {
+      id: 2,
       title: "Pertama Kali Jalan",
+      emoji: "🌹",
+      color: "from-pink-200 to-rose-200",
       description: "Tanggal pertama yang tak terlupakan...",
-      icon: "🌹",
-      color: "bg-gradient-to-br from-pink-200 to-rose-200",
-      items: [
-        { id: 1, type: "photo", text: "Kamu yang cantik", icon: "💖" },
-        { id: 2, type: "photo", text: "Nonton film pertama", icon: "🎬" },
-        { id: 3, type: "video", text: "Makan Malam", icon: "🍷" },
-        { id: 4, type: "photo", text: "Foto pertama kita", icon: "📸" },
-        { id: 5, type: "photo", text: "Selfie lucu", icon: "🤳" },
-        { id: 6, type: "video", text: "Liburan ke Pantai", icon: "🏖️" },
+      photos: [
+        { id: 1, type: "photo", title: "Kamu cantik", emoji: "💖" },
+        { id: 2, type: "photo", title: "Nonton film", emoji: "🎬" },
+        { id: 3, type: "video", title: "Makan malam", emoji: "🍷" },
+        { id: 4, type: "photo", title: "Foto pertama", emoji: "📸" },
+        { id: 5, type: "photo", title: "Selfie lucu", emoji: "🤳" },
+        { id: 6, type: "video", title: "Pantai", emoji: "🏖️" },
       ]
     },
-    photo3: {
-      id: "photo3",
+    {
+      id: 3,
       title: "Momen Spesial",
+      emoji: "✨",
+      color: "from-purple-200 to-pink-200",
       description: "Hari-hari indah bersamamu...",
-      icon: "✨",
-      color: "bg-gradient-to-br from-purple-200 to-pink-200",
-      items: [
-        { id: 1, type: "photo", text: "Party ulang tahun", icon: "🎉" },
-        { id: 2, type: "video", text: "Celebration Time!", icon: "🥳" },
-        { id: 3, type: "photo", text: "Jalan-jalan", icon: "🚶‍♀️" },
-        { id: 4, type: "photo", text: "Candid moment", icon: "😂" },
-        { id: 5, type: "video", text: "Adventure", icon: "🏞️" },
-        { id: 6, type: "photo", text: "Portrait terbaik", icon: "👑" },
+      photos: [
+        { id: 1, type: "photo", title: "Party", emoji: "🎉" },
+        { id: 2, type: "video", title: "Celebration", emoji: "🥳" },
+        { id: 3, type: "photo", title: "Jalan-jalan", emoji: "🚶‍♀️" },
+        { id: 4, type: "photo", title: "Candid", emoji: "😂" },
+        { id: 5, type: "video", title: "Adventure", emoji: "🏞️" },
+        { id: 6, type: "photo", title: "Portrait", emoji: "👑" },
       ]
     }
-  };
-
-  const photos = Object.values(photoCollections);
-
-  const handlePhotoClick = (photoId) => {
-    setSelectedPhoto(photoId);
-    setIsPopupOpen(true);
-  };
-
-  const handleClosePopup = () => {
-    setIsPopupOpen(false);
-    setSelectedPhoto(null);
-  };
-
-  const selectedCollection = selectedPhoto ? photoCollections[selectedPhoto] : null;
+  ];
 
   return (
-    <div className="h-full flex flex-col">
-      <div className="pt-12 px-4 text-center">
-        <h2 className="text-2xl md:text-3xl font-bold text-pink-600">
-          📸 Galeri Kenangan Kita
-        </h2>
-        <p className="text-gray-600 mt-1">Klik foto untuk melihat koleksi lengkap</p>
-      </div>
+    <div className="min-h-screen p-4">
+      <div className="max-w-6xl mx-auto">
+        <div className="text-center mb-8">
+          <h2 className="text-2xl md:text-3xl font-bold text-pink-600 mb-2">
+            📸 Galeri Kenangan Kita
+          </h2>
+          <p className="text-gray-600">Klik album untuk melihat koleksi lengkap</p>
+        </div>
 
-      <div className="flex-1 overflow-y-auto p-4">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-4 max-w-4xl mx-auto">
-          {photos.map((photo) => (
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+          {albums.map((album) => (
             <div
-              key={photo.id}
-              className="aspect-square rounded-2xl overflow-hidden shadow-lg cursor-pointer border-4 border-white relative"
-              onClick={() => handlePhotoClick(photo.id)}
+              key={album.id}
+              className="bg-white rounded-2xl overflow-hidden shadow-lg border border-pink-200 cursor-pointer hover:shadow-xl transition-shadow"
+              onClick={() => setSelectedAlbum(album)}
             >
-              <div className={`w-full h-full ${photo.color} flex items-center justify-center`}>
-                <span className="text-4xl">{photo.icon}</span>
+              <div className={`h-40 bg-gradient-to-br ${album.color} flex items-center justify-center`}>
+                <span className="text-5xl">{album.emoji}</span>
               </div>
-              <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/60 to-transparent p-3 text-white">
-                <p className="font-bold">{photo.title}</p>
-                <p className="text-xs">6+ foto & video</p>
+              <div className="p-4">
+                <h3 className="font-bold text-lg text-pink-700">{album.title}</h3>
+                <p className="text-sm text-gray-600">{album.description}</p>
+                <div className="mt-2 text-xs text-gray-500">
+                  📁 6+ foto & video
+                </div>
               </div>
             </div>
           ))}
         </div>
 
-        <div className="mt-8 text-center">
-          <p className="text-gray-500 text-sm">
-            Pilih salah satu album untuk melihat kenangan lengkap
-          </p>
+        <div className="text-center">
+          <button
+            onClick={next}
+            className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-full font-bold shadow-lg hover:opacity-90 transition-opacity"
+          >
+            Lanjut ke Surat Cinta →
+          </button>
         </div>
       </div>
 
-      {/* Next Button */}
-      <div className="p-4 text-center">
-        <button
-          onClick={onNext}
-          className="bg-pink-500 text-white px-6 py-2 rounded-full shadow-lg hover:bg-pink-600 transition-all"
+      {/* Modal Album */}
+      {selectedAlbum && (
+        <div 
+          className="fixed inset-0 bg-black/90 flex items-center justify-center p-4 z-50"
+          onClick={() => setSelectedAlbum(null)}
         >
-          Lanjut ke Surat Cinta →
-        </button>
-      </div>
-
-      {/* Popup Modal */}
-      {isPopupOpen && selectedCollection && (
-        <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
-          <div className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden">
+          <div 
+            className="bg-white rounded-2xl w-full max-w-2xl max-h-[90vh] overflow-hidden"
+            onClick={(e) => e.stopPropagation()}
+          >
             <div className="bg-gradient-to-r from-pink-500 to-purple-500 text-white p-4">
               <div className="flex justify-between items-center">
                 <div>
-                  <h3 className="text-xl font-bold">{selectedCollection.title}</h3>
-                  <p className="text-sm opacity-90">{selectedCollection.description}</p>
+                  <h3 className="text-xl font-bold">{selectedAlbum.title}</h3>
+                  <p className="text-sm opacity-90">{selectedAlbum.description}</p>
                 </div>
                 <button
-                  onClick={handleClosePopup}
-                  className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center"
+                  onClick={() => setSelectedAlbum(null)}
+                  className="text-white text-xl"
                 >
-                  <X className="w-4 h-4" />
+                  ✕
                 </button>
               </div>
             </div>
@@ -444,29 +369,26 @@ function GalleryScene({ name, onNext }) {
             <div className="p-4 overflow-y-auto max-h-[calc(90vh-80px)]">
               {/* Main Photo */}
               <div className="mb-6">
-                <div className={`aspect-video rounded-xl ${selectedCollection.color} flex items-center justify-center mb-2`}>
-                  <span className="text-5xl">{selectedCollection.icon}</span>
+                <div className={`aspect-video rounded-xl bg-gradient-to-br ${selectedAlbum.color} flex items-center justify-center mb-2`}>
+                  <span className="text-5xl">{selectedAlbum.emoji}</span>
                 </div>
-                <p className="text-center text-gray-600 text-sm italic">
-                  "Momen spesial yang tak terlupakan"
-                </p>
               </div>
 
-              {/* Collection Items */}
+              {/* Photos Grid */}
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mb-6">
-                {selectedCollection.items.map((item) => (
+                {selectedAlbum.photos.map((photo) => (
                   <div
-                    key={item.id}
+                    key={photo.id}
                     className={`aspect-square rounded-lg flex flex-col items-center justify-center p-2 ${
-                      item.type === 'video' 
+                      photo.type === 'video' 
                         ? 'bg-gradient-to-br from-blue-100 to-cyan-100' 
                         : 'bg-gradient-to-br from-pink-100 to-purple-100'
                     }`}
                   >
-                    <span className="text-2xl mb-1">{item.icon}</span>
-                    <p className="text-xs text-center font-medium">{item.text}</p>
+                    <span className="text-2xl mb-1">{photo.emoji}</span>
+                    <p className="text-xs text-center font-medium">{photo.title}</p>
                     <p className="text-[10px] text-gray-500 mt-1">
-                      {item.type === 'video' ? 'VIDEO' : 'FOTO'}
+                      {photo.type === 'video' ? 'VIDEO' : 'FOTO'}
                     </p>
                   </div>
                 ))}
@@ -474,11 +396,11 @@ function GalleryScene({ name, onNext }) {
 
               {/* Message */}
               <div className="bg-pink-50 rounded-xl p-4 border border-pink-200">
-                <p className="text-gray-700 text-sm">
-                  "Terima kasih untuk setiap momen indah bersamamu, {name || "sayang"}. 
+                <p className="text-gray-700">
+                  "Terima kasih untuk setiap momen indah bersamamu, {name}. 
                   Aku bersyukur atas setiap kenangan yang kita buat bersama." 💕
                 </p>
-                <p className="text-right text-pink-600 font-bold text-sm mt-2">
+                <p className="text-right text-pink-600 font-bold mt-2">
                   - Mas Bagus
                 </p>
               </div>
@@ -490,8 +412,8 @@ function GalleryScene({ name, onNext }) {
   );
 }
 
-// SCENE 4: Love Letter Scene - SIMPLIFIED
-function LoveLetterScene({ name, onNext }) {
+// SCENE 4: Love Letter
+function LoveLetterScene({ name, next }) {
   const [step, setStep] = useState(0);
   
   const messages = [
@@ -503,26 +425,25 @@ function LoveLetterScene({ name, onNext }) {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (step < messages.length) {
+    if (step < messages.length) {
+      const timer = setTimeout(() => {
         setStep(step + 1);
-      }
-    }, 2000);
-    
-    return () => clearTimeout(timer);
+      }, 2000);
+      return () => clearTimeout(timer);
+    }
   }, [step]);
 
   const canContinue = step >= messages.length;
 
   return (
     <div 
-      className="h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-rose-50 to-pink-100"
-      onClick={canContinue ? onNext : undefined}
+      className="min-h-screen bg-gradient-to-b from-rose-50 to-pink-100 flex items-center justify-center p-4"
+      onClick={canContinue ? next : undefined}
     >
-      <div className="max-w-2xl w-full bg-white/90 rounded-2xl p-6 shadow-lg border border-pink-200">
+      <div className="max-w-2xl w-full bg-white rounded-2xl p-6 shadow-lg border border-pink-200">
         <div className="text-center mb-6">
-          <div className="inline-block p-3 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-3">
-            <Heart className="w-6 h-6 text-white fill-white" />
+          <div className="w-12 h-12 mx-auto bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center mb-3">
+            <span className="text-2xl">❤️</span>
           </div>
           <h3 className="text-xl font-bold text-pink-700">💌 Surat Untukmu</h3>
           <p className="text-gray-600 text-sm">Dari Mas Bagus, dengan cinta</p>
@@ -530,14 +451,14 @@ function LoveLetterScene({ name, onNext }) {
 
         <div className="space-y-4 min-h-[200px]">
           {messages.slice(0, step).map((message, index) => (
-            <p key={index} className="text-gray-700">
+            <p key={index} className="text-gray-700 leading-relaxed">
               {message}
             </p>
           ))}
           
           {step < messages.length && (
             <div className="flex justify-center">
-              <div className="animate-pulse text-pink-400">●</div>
+              <span className="animate-pulse text-pink-400">●</span>
             </div>
           )}
         </div>
@@ -552,10 +473,8 @@ function LoveLetterScene({ name, onNext }) {
         )}
 
         <div className="mt-6 text-center">
-          <p className="text-sm text-gray-500 flex items-center justify-center gap-2">
-            <Sparkles className="w-4 h-4" />
-            {canContinue ? "Sentuh layar untuk kejutan terakhir..." : "Membaca pesan..."}
-            <Sparkles className="w-4 h-4" />
+          <p className="text-sm text-gray-500">
+            {canContinue ? "✨ Sentuh layar untuk kejutan terakhir..." : "✨ Membaca pesan..."}
           </p>
         </div>
       </div>
@@ -563,7 +482,7 @@ function LoveLetterScene({ name, onNext }) {
   );
 }
 
-// SCENE 5: Final Scene - SIMPLIFIED
+// SCENE 5: Final Scene
 function FinalScene({ name }) {
   const [step, setStep] = useState(0);
   
@@ -580,37 +499,31 @@ function FinalScene({ name }) {
   ];
 
   useEffect(() => {
-    const timer = setTimeout(() => {
-      if (step < wishes.length) {
+    if (step < wishes.length) {
+      const timer = setTimeout(() => {
         setStep(step + 1);
-      }
-    }, 1500);
-    
-    return () => clearTimeout(timer);
+      }, 1500);
+      return () => clearTimeout(timer);
+    }
   }, [step]);
 
   return (
-    <div className="min-h-full flex flex-col items-center justify-center p-4 bg-gradient-to-b from-purple-50 to-blue-50">
-      <div className="max-w-2xl w-full space-y-6">
-        <div className="text-center">
-          <h2 className="text-3xl font-bold text-pink-600">
+    <div className="min-h-screen bg-gradient-to-b from-purple-50 to-blue-50 flex items-center justify-center p-4">
+      <div className="max-w-2xl w-full">
+        <div className="text-center mb-6">
+          <h2 className="text-3xl font-bold text-pink-600 mb-2">
             Selamat ulang tahun, {name || "sayang"}! 💝
           </h2>
-          <p className="text-gray-700 mt-2">
-            Ini adalah hari untuk merayakan kamu
-          </p>
+          <p className="text-gray-700">Ini adalah hari untuk merayakan kamu</p>
         </div>
 
-        <div className="relative mx-auto w-48 h-48">
-          <div className="absolute inset-0 bg-gradient-to-r from-pink-500 to-purple-500 rounded-full blur-lg opacity-50"></div>
-          <div className="relative w-full h-full bg-white rounded-full p-2">
-            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex items-center justify-center">
-              <span className="text-5xl">💑</span>
-            </div>
+        <div className="w-48 h-48 mx-auto bg-gradient-to-r from-pink-500 to-purple-500 rounded-full p-2 mb-6">
+          <div className="w-full h-full bg-white rounded-full flex items-center justify-center">
+            <span className="text-5xl">💑</span>
           </div>
         </div>
 
-        <div className="bg-white/80 rounded-2xl p-4 shadow-lg">
+        <div className="bg-white rounded-2xl p-6 shadow-lg mb-6">
           <div className="space-y-3">
             {wishes.slice(0, step).map((wish, index) => (
               <p key={index} className="text-gray-700">
@@ -620,14 +533,14 @@ function FinalScene({ name }) {
             
             {step < wishes.length && (
               <div className="flex justify-center">
-                <div className="animate-pulse text-pink-400">●</div>
+                <span className="animate-pulse text-pink-400">●</span>
               </div>
             )}
           </div>
         </div>
 
         {step >= wishes.length && (
-          <div className="text-center">
+          <div className="text-center mb-6">
             <p className="text-xl font-bold text-pink-600 mb-2">
               I love you dede cantiiikkk 💕
             </p>
@@ -636,52 +549,29 @@ function FinalScene({ name }) {
         )}
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-          <button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-2xl font-bold shadow-lg flex items-center justify-center gap-3">
-            <Music className="w-5 h-5" />
-            Putar Pesan Suara
+          <button className="bg-gradient-to-r from-pink-500 to-rose-500 text-white p-3 rounded-xl font-bold shadow-lg hover:opacity-90 transition-opacity">
+            🎵 Putar Pesan Suara
           </button>
           
-          <button className="border-2 border-pink-400 text-pink-600 p-3 rounded-2xl font-bold flex items-center justify-center gap-3">
-            <Gift className="w-5 h-5" />
-            Lihat Hadiah 🎁
+          <button className="border-2 border-pink-400 text-pink-600 p-3 rounded-xl font-bold hover:bg-pink-50 transition-colors">
+            🎁 Lihat Hadiah
           </button>
         </div>
 
-        <div className="text-center pt-6">
+        <div className="text-center mt-8">
           <p className="text-sm text-gray-500">
             Made with 💖 by Mas Bagus
           </p>
           <p className="text-xs text-gray-400 mt-1">
-            {new Date().toLocaleDateString('id-ID')}
+            {new Date().toLocaleDateString('id-ID', { 
+              weekday: 'long', 
+              year: 'numeric', 
+              month: 'long', 
+              day: 'numeric' 
+            })}
           </p>
         </div>
       </div>
-    </div>
-  );
-}
-
-// Confetti Component - SIMPLIFIED
-function Confetti() {
-  return (
-    <div className="fixed inset-0 pointer-events-none z-50">
-      {Array.from({ length: 50 }).map((_, i) => (
-        <div
-          key={i}
-          className="absolute w-2 h-2 rounded-full"
-          style={{
-            left: `${Math.random() * 100}%`,
-            top: `${Math.random() * 100}%`,
-            backgroundColor: ['#f472b6', '#ec4899', '#db2777'][Math.floor(Math.random() * 3)],
-            animation: `fall ${Math.random() * 2 + 1}s linear infinite`
-          }}
-        />
-      ))}
-      <style jsx>{`
-        @keyframes fall {
-          0% { transform: translateY(-100px) rotate(0deg); opacity: 1; }
-          100% { transform: translateY(100vh) rotate(360deg); opacity: 0; }
-        }
-      `}</style>
     </div>
   );
 }
