@@ -11,7 +11,7 @@ export default function SurpriseForHer() {
   const audioRef = useRef(null);
   
   // Password spesial: nama + tanggal lahir (22-01-2007)
-  const correctPassword = "22-01-2007";
+  const correctPassword = "sayangku22012007";
 
   const nextScene = () => {
     if (scene < 6) {
@@ -825,10 +825,13 @@ function LoveLetters({ next, darkMode }) {
       exit={{ opacity: 0 }}
       className="h-full flex flex-col items-center justify-center p-6 relative"
     >
-      {/* Paper Texture Background */}
+      {/* Paper Texture Background - FIXED VERSION */}
       <div className={`absolute inset-0 ${darkMode ? 'bg-gradient-to-br from-amber-900/20 to-rose-900/20' : 'bg-gradient-to-br from-amber-50/50 to-rose-50/50'}`}>
-        {/* Paper texture */}
-        <div className="absolute inset-0 opacity-10 bg-[url('data:image/svg+xml,%3Csvg width="100" height="100" xmlns="http://www.w3.org/2000/svg"%3E%3Cpath d="M0 0h100v100H0z" fill="none"/%3E%3Cpath d="M20 20h60v60H20z" stroke="gray" stroke-width="0.5" fill="none"/%3E%3C/svg%3E')]" />
+        {/* Paper texture using simplified pattern without data URL issues */}
+        <div className="absolute inset-0 opacity-10" style={{
+          backgroundImage: `linear-gradient(45deg, ${darkMode ? '#4a044e' : '#fecdd3'} 25%, transparent 25%, transparent 50%, ${darkMode ? '#4a044e' : '#fecdd3'} 50%, ${darkMode ? '#4a044e' : '#fecdd3'} 75%, transparent 75%, transparent)`,
+          backgroundSize: '20px 20px'
+        }} />
       </div>
 
       <div className="max-w-2xl w-full relative z-10">
@@ -1149,17 +1152,17 @@ function ForeverPromise({ next, darkMode }) {
                 <p>
                   Terima kasih telah menjadi bagian dari hidupku...
                 </p>
-                  <p>
+                <p>
                   Terima kasih atas setiap senyuman, setiap tawa, setiap momen...
-                  </p>
-                  <p className={`text-2xl font-bold ${darkMode ? 'text-rose-300' : 'text-rose-600'}`}>
+                </p>
+                <p className={`text-2xl font-bold ${darkMode ? 'text-rose-300' : 'text-rose-600'}`}>
                   Kamu akan selalu menjadi yang teristimewa...
-                  </p>
-                  <p className={`text-xl ${darkMode ? 'text-purple-300' : 'text-pink-600'}`}>
+                </p>
+                <p className={`text-xl ${darkMode ? 'text-purple-300' : 'text-pink-600'}`}>
                   Selamat atas segala sesuatu yang telah kamu capai...
-                  </p>
-                  <p className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
-                    Aku mencintaimu 💝
+                </p>
+                <p className="text-3xl font-bold bg-gradient-to-r from-pink-500 to-rose-500 bg-clip-text text-transparent">
+                  Aku mencintaimu 💝
                 </p>
               </div>
             </div>
