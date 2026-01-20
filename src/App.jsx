@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef, useCallback } from "react";
 import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart, Star, Sparkles, Music, Gift, Clock, Camera, Video, MessageCircle, Lock, Key, Crown, Flower2, ChevronDown } from "lucide-react";
+import { Heart, Star, Sparkles, Music, Gift, Clock, Camera, Video, MessageCircle, Lock, Key, Crown, Flower2, ChevronDown, X } from "lucide-react";
 
 export default function BirthdayWebsite() {
   const [name, setName] = useState("");
@@ -11,9 +11,6 @@ export default function BirthdayWebsite() {
   const audioRef = useRef(null);
   const correctDate = "14-02-2003";
   const containerRef = useRef(null);
-  const { scrollYProgress } = useScroll({
-    container: containerRef,
-  });
 
   const sections = [
     "login",
@@ -25,16 +22,12 @@ export default function BirthdayWebsite() {
     "final"
   ];
 
-  // Animasi parallax untuk background elements
-  const backgroundY = useTransform(scrollYProgress, [0, 1], [0, 200]);
-  const starsOpacity = useTransform(scrollYProgress, [0, 1], [1, 0.3]);
-
   const toggleMusic = () => {
     if (audioRef.current) {
       if (musicPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play();
+        audioRef.current.play().catch(e => console.log("Audio play failed:", e));
       }
       setMusicPlaying(!musicPlaying);
     }
@@ -42,7 +35,7 @@ export default function BirthdayWebsite() {
 
   useEffect(() => {
     // Inisialisasi audio
-    audioRef.current = new Audio("/api/placeholder/audio/happy-birthday.mp3");
+    audioRef.current = new Audio("https://assets.mixkit.co/music/preview/mixkit-happy-birthday-to-you-443.mp3");
     audioRef.current.loop = true;
     
     return () => {
@@ -76,11 +69,9 @@ export default function BirthdayWebsite() {
       .animate-pulse-heart {
         animation: pulse-heart 1s ease-in-out infinite;
       }
-      /* Smooth scroll */
       .scroll-container {
         scroll-behavior: smooth;
       }
-      /* Custom scrollbar */
       .scroll-container::-webkit-scrollbar {
         width: 8px;
       }
@@ -107,7 +98,7 @@ export default function BirthdayWebsite() {
 
     const handleScroll = () => {
       const scrollTop = container.scrollTop;
-      const sectionHeight = container.scrollHeight / sections.length;
+      const sectionHeight = container.clientHeight;
       const current = Math.floor(scrollTop / sectionHeight);
       setCurrentSection(Math.min(current, sections.length - 1));
 
@@ -120,43 +111,39 @@ export default function BirthdayWebsite() {
 
     container.addEventListener('scroll', handleScroll);
     return () => container.removeEventListener('scroll', handleScroll);
-  }, [sections.length, showConfetti]);
+  }, [showConfetti]);
 
   const scrollToSection = useCallback((index) => {
     const container = containerRef.current;
     if (!container) return;
     
-    const sectionHeight = container.scrollHeight / sections.length;
+    const sectionHeight = container.clientHeight;
     container.scrollTo({
       top: sectionHeight * index,
       behavior: 'smooth'
     });
-  }, [sections.length]);
+  }, []);
 
-  // Auto scroll indicator
+  // Auto scroll dengan wheel
   useEffect(() => {
     const handleWheel = (e) => {
-      if (Math.abs(e.deltaY) > 50) {
-        const direction = e.deltaY > 0 ? 1 : -1;
-        const nextSection = Math.max(0, Math.min(sections.length - 1, currentSection + direction));
+      e.preventDefault();
+      const direction = e.deltaY > 0 ? 1 : -1;
+      const nextSection = Math.max(0, Math.min(sections.length - 1, currentSection + direction));
+      
+      if (nextSection !== currentSection) {
         scrollToSection(nextSection);
       }
     };
 
-    const container = containerRef.current;
-    if (container) {
-      container.addEventListener('wheel', handleWheel, { passive: false });
-      return () => container.removeEventListener('wheel', handleWheel);
-    }
+    window.addEventListener('wheel', handleWheel, { passive: false });
+    return () => window.removeEventListener('wheel', handleWheel);
   }, [currentSection, scrollToSection, sections.length]);
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-gradient-to-br from-pink-100 via-purple-50 to-rose-100">
-      {/* Background Elements dengan Parallax */}
-      <motion.div 
-        className="absolute inset-0 overflow-hidden pointer-events-none"
-        style={{ y: backgroundY }}
-      >
+    <div className="relative w-screen h-screen overflow-hidden bg-gradient-to-br from-pink-100 via-purple-50 to-rose-100 font-sans">
+      {/* Background Elements */}
+      <div className="absolute inset-0 overflow-hidden pointer-events-none">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
@@ -180,7 +167,7 @@ export default function BirthdayWebsite() {
             ❤️
           </motion.div>
         ))}
-      </motion.div>
+      </div>
 
       {/* Confetti */}
       <AnimatePresence>
@@ -219,16 +206,6 @@ export default function BirthdayWebsite() {
                   layoutId="activeDot"
                 />
               )}
-              <div className="absolute right-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
-                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-medium text-pink-600">
-                  {index === 0 ? "Login" :
-                   index === 1 ? "Opening" :
-                   index === 2 ? "Celebration" :
-                   index === 3 ? "Gallery" :
-                   index === 4 ? "Timeline" :
-                   index === 5 ? "Love Letter" : "Final"}
-                </div>
-              </div>
             </motion.button>
           ))}
         </div>
@@ -249,7 +226,7 @@ export default function BirthdayWebsite() {
         className="scroll-container h-full overflow-y-auto snap-y snap-mandatory"
       >
         {/* Section 1: Login */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <LoginSection
             name={name}
             setName={setName}
@@ -261,32 +238,32 @@ export default function BirthdayWebsite() {
         </section>
 
         {/* Section 2: Cinematic Opening */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <OpeningSection name={name} />
         </section>
 
         {/* Section 3: Birthday Celebration */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <CelebrationSection name={name} />
         </section>
 
         {/* Section 4: Gallery */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <GallerySection name={name} />
         </section>
 
         {/* Section 5: Timeline */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <TimelineSection name={name} />
         </section>
 
         {/* Section 6: Love Letter */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <LoveLetterSection name={name} />
         </section>
 
         {/* Section 7: Final */}
-        <section className="h-screen w-full snap-start">
+        <section className="h-screen w-full snap-start flex items-center justify-center">
           <FinalSection
             name={name}
             onPlayAudio={toggleMusic}
@@ -346,7 +323,7 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="h-full flex flex-col items-center justify-center p-6 relative"
+      className="w-full max-w-4xl mx-auto px-4"
     >
       <motion.div
         initial={{ y: -50, opacity: 0 }}
@@ -354,17 +331,17 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
         transition={{ delay: 0.2 }}
         className="text-center mb-12"
       >
-        <h1 className="text-6xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent mb-4">
+        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent mb-4">
           🎀 Gerbang Cinta Kita 🎀
         </h1>
-        <p className="text-gray-600 text-xl">Masukkan kode rahasia untuk masuk ke dunia kita berdua</p>
+        <p className="text-gray-600 text-lg md:text-xl">Masukkan kode rahasia untuk masuk ke dunia kita berdua</p>
       </motion.div>
 
       <motion.div
         initial={{ scale: 0.9, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.4 }}
-        className="w-full max-w-md bg-white/90 backdrop-blur-lg rounded-3xl p-8 shadow-2xl border-2 border-pink-300/50"
+        className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-pink-300/50"
       >
         <div className="space-y-6">
           <div>
@@ -396,37 +373,33 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
             />
           </div>
 
-          <AnimatePresence>
-            {hint && (
-              <motion.p
-                initial={{ opacity: 0, height: 0 }}
-                animate={{ opacity: 1, height: 'auto' }}
-                exit={{ opacity: 0, height: 0 }}
-                className="text-rose-400 text-sm text-center p-3 bg-rose-50 rounded-xl border border-rose-200"
-              >
-                {hint}
-              </motion.p>
-            )}
-          </AnimatePresence>
+          {hint && (
+            <motion.p
+              initial={{ opacity: 0, height: 0 }}
+              animate={{ opacity: 1, height: 'auto' }}
+              exit={{ opacity: 0, height: 0 }}
+              className="text-rose-400 text-sm text-center p-3 bg-rose-50 rounded-xl border border-rose-200"
+            >
+              {hint}
+            </motion.p>
+          )}
         </div>
 
-        <AnimatePresence>
-          {date === correctDate && name.trim() && (
-            <motion.button
-              initial={{ scale: 0 }}
-              animate={{ scale: 1 }}
-              whileHover={{ scale: 1.05 }}
-              whileTap={{ scale: 0.95 }}
-              onClick={handleSubmit}
-              className="w-full mt-6 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 text-white p-5 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
-            >
-              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-              <Sparkles className="w-6 h-6" />
-              Buka Dunia Cinta Kita ✨
-              <Sparkles className="w-6 h-6" />
-            </motion.button>
-          )}
-        </AnimatePresence>
+        {date === correctDate && name.trim() && (
+          <motion.button
+            initial={{ scale: 0 }}
+            animate={{ scale: 1 }}
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
+            onClick={handleSubmit}
+            className="w-full mt-6 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 text-white p-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
+          >
+            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+            <Sparkles className="w-5 h-5" />
+            Buka Dunia Cinta Kita ✨
+            <Sparkles className="w-5 h-5" />
+          </motion.button>
+        )}
       </motion.div>
     </motion.div>
   );
@@ -440,7 +413,7 @@ function OpeningSection({ name }) {
     `Untuk ${name || "sayangku"}...`,
     `Yang membuat setiap detik terasa seperti dongeng indah...`,
     `Dan setiap momen bersamamu adalah cerita terbaik dalam hidupku...`,
-    `Kamu adalah alasan mengapa pagi selalu lebih cerah...`,
+    `Kamu adalah alasan mengapa pagi selalu lebih ceriah...`,
     `Dan alasan mengapa malam selalu penuh harapan...`
   ];
 
@@ -452,7 +425,9 @@ function OpeningSection({ name }) {
       if (index < texts.length) {
         const timer = setTimeout(() => {
           setCurrentTextIndex(index);
-          showText(index + 1);
+          if (index < texts.length - 1) {
+            showText(index + 1);
+          }
         }, 3000);
         timers.push(timer);
       }
@@ -461,10 +436,10 @@ function OpeningSection({ name }) {
     showText(0);
     
     return () => timers.forEach(timer => clearTimeout(timer));
-  }, []);
+  }, [texts.length]);
 
   return (
-    <div className="h-full bg-gradient-to-br from-purple-900 via-pink-900 to-rose-900 text-white relative overflow-hidden">
+    <div className="h-full w-full bg-gradient-to-br from-purple-900 via-pink-900 to-rose-900 text-white relative overflow-hidden">
       <div className="absolute inset-0">
         {[...Array(30)].map((_, i) => (
           <motion.div
@@ -492,21 +467,21 @@ function OpeningSection({ name }) {
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
           transition={{ type: "spring" }}
-          className="mb-12"
+          className="mb-8 md:mb-12"
         >
-          <div className="w-32 h-32 bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 rounded-full flex items-center justify-center shadow-2xl">
-            <Heart className="w-16 h-16 fill-white" />
+          <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 rounded-full flex items-center justify-center shadow-2xl">
+            <Heart className="w-12 h-12 md:w-16 md:h-16 fill-white" />
           </div>
         </motion.div>
 
-        <div className="max-w-3xl text-center">
+        <div className="max-w-3xl text-center px-4">
           <AnimatePresence mode="wait">
             <motion.h2
               key={currentTextIndex}
               initial={{ opacity: 0, y: 30 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -30 }}
-              className="text-4xl md:text-5xl font-light leading-relaxed"
+              className="text-3xl md:text-4xl lg:text-5xl font-light leading-relaxed"
             >
               {texts[currentTextIndex]}
             </motion.h2>
@@ -516,7 +491,7 @@ function OpeningSection({ name }) {
         <motion.div
           animate={{ y: [0, -10, 0] }}
           transition={{ duration: 2, repeat: Infinity }}
-          className="mt-16"
+          className="mt-8 md:mt-16"
         >
           <div className="flex items-center gap-2">
             {[...Array(3)].map((_, i) => (
@@ -545,12 +520,12 @@ function CelebrationSection({ name }) {
   }, []);
 
   return (
-    <div className="h-full bg-gradient-to-b from-pink-100 to-rose-100 relative overflow-hidden">
+    <div className="h-full w-full bg-gradient-to-b from-pink-100 to-rose-100 relative overflow-hidden">
       <div className="absolute inset-0">
         {[...Array(20)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-4xl"
+            className="absolute text-3xl md:text-4xl"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -574,14 +549,14 @@ function CelebrationSection({ name }) {
         <motion.div
           initial={{ y: -100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="mb-12"
+          className="mb-8 md:mb-12"
         >
           <div className="relative">
             {/* Cake */}
-            <div className="w-64 h-64 relative">
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-32 bg-gradient-to-b from-amber-300 to-amber-600 rounded-t-3xl">
-                <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-56 h-16 bg-gradient-to-b from-pink-300 to-rose-500 rounded-full"></div>
-                <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-44 h-12 bg-gradient-to-b from-white to-pink-200 rounded-full"></div>
+            <div className="w-48 h-48 md:w-64 md:h-64 relative">
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-36 md:w-48 h-20 md:h-32 bg-gradient-to-b from-amber-300 to-amber-600 rounded-t-3xl">
+                <div className="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-44 md:w-56 h-12 md:h-16 bg-gradient-to-b from-pink-300 to-rose-500 rounded-full"></div>
+                <div className="absolute -top-12 md:-top-16 left-1/2 transform -translate-x-1/2 w-36 md:w-44 h-8 md:h-12 bg-gradient-to-b from-white to-pink-200 rounded-full"></div>
                 
                 {/* Candles */}
                 {[...Array(23)].map((_, i) => (
@@ -590,7 +565,7 @@ function CelebrationSection({ name }) {
                     className="absolute bottom-full"
                     style={{
                       left: `${(i * 20) % 200}%`,
-                      bottom: `${40 + (Math.floor(i / 10) * 20)}%`,
+                      bottom: `${30 + (Math.floor(i / 10) * 20)}%`,
                     }}
                     animate={{ 
                       y: [0, -5, 0],
@@ -602,8 +577,8 @@ function CelebrationSection({ name }) {
                       delay: i * 0.1
                     }}
                   >
-                    <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-red-500 rounded-t-full"></div>
-                    <div className="w-3 h-3 bg-yellow-300 rounded-full -mt-1 mx-auto blur-sm"></div>
+                    <div className="w-1 h-6 bg-gradient-to-b from-yellow-400 to-red-500 rounded-t-full"></div>
+                    <div className="w-2 h-2 bg-yellow-300 rounded-full -mt-1 mx-auto blur-sm"></div>
                   </motion.div>
                 ))}
               </div>
@@ -615,23 +590,23 @@ function CelebrationSection({ name }) {
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
           transition={{ delay: 0.5 }}
-          className="text-center space-y-6"
+          className="text-center space-y-4 md:space-y-6 px-4"
         >
           <motion.h1
             animate={isShaking ? { 
               scale: [1, 1.1, 1],
               rotate: [0, 2, -2, 0]
             } : {}}
-            className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
+            className="text-4xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
           >
             SELAMAT ULANG TAHUN!
           </motion.h1>
           
-          <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full text-3xl font-bold shadow-lg inline-block">
+          <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-2 md:px-8 md:py-3 rounded-full text-2xl md:text-3xl font-bold shadow-lg inline-block">
             🎂 {name || "Sayangku"} yang ke-23 🎂
           </div>
           
-          <p className="text-2xl text-gray-700 font-semibold">
+          <p className="text-xl md:text-2xl text-gray-700 font-semibold">
             Semoga setiap lilin ini menerangi jalan menuju kebahagiaanmu! 💝
           </p>
         </motion.div>
@@ -645,8 +620,8 @@ function GallerySection({ name }) {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
 
-  const albums = {
-    album1: {
+  const albums = [
+    {
       id: "album1",
       title: "Momen Pertama Kita",
       date: "14 Februari 2023",
@@ -672,7 +647,7 @@ function GallerySection({ name }) {
         }
       ]
     },
-    album2: {
+    {
       id: "album2",
       title: "Liburan Pertama",
       date: "Juli 2023",
@@ -698,7 +673,7 @@ function GallerySection({ name }) {
         }
       ]
     },
-    album3: {
+    {
       id: "album3",
       title: "Ulang Tahun Pertama",
       date: "14 Februari 2024",
@@ -724,30 +699,30 @@ function GallerySection({ name }) {
         }
       ]
     }
-  };
+  ];
 
-  const handleAlbumClick = (albumId) => {
-    setSelectedAlbum(albumId);
+  const handleAlbumClick = (album) => {
+    setSelectedAlbum(album);
     setIsPopupOpen(true);
   };
 
   return (
-    <div className="h-full bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 overflow-y-auto">
+      <div className="min-h-full flex flex-col items-center p-6 md:p-8">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-12"
+          className="text-center mb-8 md:mb-12"
         >
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             📸 Galeri Kenangan Kita
           </h2>
-          <p className="text-gray-600 text-xl">Kenangan indah yang selalu menghangatkan hati</p>
+          <p className="text-gray-600 text-lg md:text-xl">Kenangan indah yang selalu menghangatkan hati</p>
         </motion.div>
 
         <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {Object.values(albums).map((album, index) => (
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
+            {albums.map((album, index) => (
               <motion.div
                 key={album.id}
                 initial={{ opacity: 0, y: 50 }}
@@ -755,13 +730,13 @@ function GallerySection({ name }) {
                 transition={{ delay: index * 0.2 }}
                 whileHover={{ y: -10 }}
                 className="cursor-pointer"
-                onClick={() => handleAlbumClick(album.id)}
+                onClick={() => handleAlbumClick(album)}
               >
-                <div className={`h-64 rounded-3xl bg-gradient-to-br ${album.color} p-8 shadow-xl`}>
+                <div className={`h-48 md:h-64 rounded-3xl bg-gradient-to-br ${album.color} p-6 md:p-8 shadow-xl`}>
                   <div className="h-full flex flex-col items-center justify-center text-white text-center">
-                    <span className="text-6xl mb-4">{album.icon}</span>
-                    <h3 className="text-2xl font-bold mb-2">{album.title}</h3>
-                    <p className="opacity-90">{album.date}</p>
+                    <span className="text-5xl md:text-6xl mb-4">{album.icon}</span>
+                    <h3 className="text-xl md:text-2xl font-bold mb-2">{album.title}</h3>
+                    <p className="opacity-90 text-sm md:text-base">{album.date}</p>
                   </div>
                 </div>
                 <div className="mt-4 text-center">
@@ -771,65 +746,68 @@ function GallerySection({ name }) {
             ))}
           </div>
         </div>
-      </div>
 
-      {/* Album Detail Popup */}
-      <AnimatePresence>
-        {isPopupOpen && selectedAlbum && (
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-            onClick={() => setIsPopupOpen(false)}
-          >
+        {/* Album Detail Popup */}
+        <AnimatePresence>
+          {isPopupOpen && selectedAlbum && (
             <motion.div
-              initial={{ scale: 0.9, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.9, opacity: 0 }}
-              className="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
-              onClick={(e) => e.stopPropagation()}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+              onClick={() => setIsPopupOpen(false)}
             >
-              <div className={`p-6 bg-gradient-to-r ${albums[selectedAlbum].color} text-white`}>
-                <div className="flex justify-between items-center">
-                  <div>
-                    <h3 className="text-2xl font-bold">{albums[selectedAlbum].title}</h3>
-                    <p className="opacity-90">{albums[selectedAlbum].date}</p>
-                  </div>
-                  <button onClick={() => setIsPopupOpen(false)} className="text-white hover:text-white/80">
-                    ✕
-                  </button>
-                </div>
-              </div>
-              
-              <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
-                <div className="space-y-4">
-                  {albums[selectedAlbum].memories.map((memory) => (
-                    <div key={memory.id} className="bg-gray-50 rounded-xl p-4">
-                      <div className="flex items-center gap-4">
-                        <div className="text-3xl">{memory.icon}</div>
-                        <div>
-                          <h4 className="font-bold text-gray-800">{memory.title}</h4>
-                          <p className="text-gray-600">{memory.caption}</p>
-                          <p className="text-sm text-gray-500 mt-1">{memory.details}</p>
-                        </div>
-                      </div>
+              <motion.div
+                initial={{ scale: 0.9, opacity: 0 }}
+                animate={{ scale: 1, opacity: 1 }}
+                exit={{ scale: 0.9, opacity: 0 }}
+                className="bg-white rounded-3xl w-full max-w-2xl max-h-[80vh] overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                <div className={`p-6 bg-gradient-to-r ${selectedAlbum.color} text-white`}>
+                  <div className="flex justify-between items-center">
+                    <div>
+                      <h3 className="text-2xl font-bold">{selectedAlbum.title}</h3>
+                      <p className="opacity-90">{selectedAlbum.date}</p>
                     </div>
-                  ))}
+                    <button 
+                      onClick={() => setIsPopupOpen(false)}
+                      className="text-white hover:text-white/80"
+                    >
+                      <X className="w-6 h-6" />
+                    </button>
+                  </div>
                 </div>
                 
-                <div className="mt-8 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-6">
-                  <p className="text-gray-700 italic">
-                    "Setiap kenangan denganmu adalah harta karun yang tak ternilai, {name}. 
-                    Terima kasih telah mengisi hidupku dengan cerita-cerita indah ini."
-                  </p>
-                  <p className="text-right text-pink-600 font-bold mt-2">- Mas Bagus 💕</p>
+                <div className="p-6 overflow-y-auto max-h-[calc(80vh-120px)]">
+                  <div className="space-y-4">
+                    {selectedAlbum.memories.map((memory) => (
+                      <div key={memory.id} className="bg-gray-50 rounded-xl p-4">
+                        <div className="flex items-center gap-4">
+                          <div className="text-3xl">{memory.icon}</div>
+                          <div>
+                            <h4 className="font-bold text-gray-800">{memory.title}</h4>
+                            <p className="text-gray-600">{memory.caption}</p>
+                            <p className="text-sm text-gray-500 mt-1">{memory.details}</p>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                  
+                  <div className="mt-8 bg-gradient-to-r from-pink-50 to-rose-50 rounded-xl p-6">
+                    <p className="text-gray-700 italic">
+                      "Setiap kenangan denganmu adalah harta karun yang tak ternilai, {name}. 
+                      Terima kasih telah mengisi hidupku dengan cerita-cerita indah ini."
+                    </p>
+                    <p className="text-right text-pink-600 font-bold mt-2">- Mas Bagus 💕</p>
+                  </div>
                 </div>
-              </div>
+              </motion.div>
             </motion.div>
-          </motion.div>
-        )}
-      </AnimatePresence>
+          )}
+        </AnimatePresence>
+      </div>
     </div>
   );
 }
@@ -907,27 +885,27 @@ function TimelineSection({ name }) {
   const currentTimeline = timelineEvents.find(t => t.year === currentYear);
 
   return (
-    <div className="h-full bg-gradient-to-b from-purple-50 to-pink-50 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-purple-50 to-pink-50 overflow-y-auto">
+      <div className="min-h-full flex flex-col items-center p-6 md:p-8">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-12"
+          className="text-center mb-8 md:mb-12"
         >
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             Timeline Cinta Kita
           </h2>
-          <p className="text-gray-600 text-xl">Perjalanan indah kita dari awal hingga sekarang</p>
+          <p className="text-gray-600 text-lg md:text-xl">Perjalanan indah kita dari awal hingga sekarang</p>
         </motion.div>
 
         <div className="w-full max-w-4xl">
           {/* Year Navigation */}
-          <div className="flex justify-center gap-4 mb-12">
+          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8 md:mb-12">
             {timelineEvents.map(({ year }) => (
               <button
                 key={year}
                 onClick={() => setCurrentYear(year)}
-                className={`px-6 py-3 rounded-full font-bold transition-all ${currentYear === year ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : 'bg-white text-gray-600'}`}
+                className={`px-4 py-2 md:px-6 md:py-3 rounded-full font-bold transition-all ${currentYear === year ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : 'bg-white text-gray-600'}`}
               >
                 {year}
               </button>
@@ -939,29 +917,29 @@ function TimelineSection({ name }) {
             key={currentYear}
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="mb-12"
+            className="mb-8 md:mb-12"
           >
-            <div className="text-center mb-8">
-              <div className="inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-2 rounded-full text-xl font-bold">
+            <div className="text-center mb-6 md:mb-8">
+              <div className="inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-2 md:px-8 md:py-2 rounded-full text-lg md:text-xl font-bold">
                 Tahun {currentYear}
               </div>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
               {currentTimeline?.events.map((event, index) => (
                 <motion.div
                   key={index}
                   initial={{ opacity: 0, y: 20 }}
                   animate={{ opacity: 1, y: 0 }}
                   transition={{ delay: index * 0.2 }}
-                  className="bg-white rounded-2xl p-6 shadow-lg"
+                  className="bg-white rounded-2xl p-4 md:p-6 shadow-lg"
                 >
-                  <div className="flex items-center gap-4">
-                    <div className="text-3xl">{event.icon}</div>
+                  <div className="flex items-center gap-3 md:gap-4">
+                    <div className="text-2xl md:text-3xl">{event.icon}</div>
                     <div>
                       <p className="text-sm text-pink-500 font-semibold">{event.date}</p>
-                      <h4 className="text-xl font-bold text-gray-800 mt-1">{event.title}</h4>
-                      <p className="text-gray-600 mt-2">{event.description}</p>
+                      <h4 className="text-lg md:text-xl font-bold text-gray-800 mt-1">{event.title}</h4>
+                      <p className="text-gray-600 mt-2 text-sm md:text-base">{event.description}</p>
                     </div>
                   </div>
                 </motion.div>
@@ -973,18 +951,18 @@ function TimelineSection({ name }) {
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
-            className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-8"
+            className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 md:p-8"
           >
-            <div className="flex items-center gap-4 mb-6">
-              <div className="w-12 h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
-                <Heart className="w-6 h-6 text-white" />
+            <div className="flex items-center gap-4 mb-4 md:mb-6">
+              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
+                <Heart className="w-5 h-5 md:w-6 md:h-6 text-white" />
               </div>
               <div>
-                <h4 className="text-xl font-bold text-pink-700">Refleksi Cinta</h4>
-                <p className="text-gray-600">Dari Mas Bagus untuk {name || "kekasihku"}</p>
+                <h4 className="text-lg md:text-xl font-bold text-pink-700">Refleksi Cinta</h4>
+                <p className="text-gray-600 text-sm md:text-base">Dari Mas Bagus untuk {name || "kekasihku"}</p>
               </div>
             </div>
-            <p className="text-gray-700 text-lg">
+            <p className="text-gray-700 text-base md:text-lg">
               "Lihatlah bagaimana perjalanan kita tumbuh dari waktu ke waktu. 
               Setiap tahun bersama kamu adalah tahun yang penuh makna, tawa, dan cinta. 
               Aku bersyukur bisa menjadi bagian dari setiap bab dalam cerita hidupmu."
@@ -1028,11 +1006,11 @@ function LoveLetterSection({ name }) {
     }, 1500);
 
     return () => clearTimeout(timer);
-  }, []);
+  }, [messages]);
 
   return (
-    <div className="h-full bg-gradient-to-b from-rose-100 to-pink-100 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center justify-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-rose-100 to-pink-100 overflow-y-auto">
+      <div className="min-h-full flex flex-col items-center justify-center p-6 md:p-8">
         <AnimatePresence>
           {showEnvelope && (
             <motion.div
@@ -1042,8 +1020,8 @@ function LoveLetterSection({ name }) {
               exit={{ scale: 1.2, opacity: 0 }}
               className="text-center"
             >
-              <div className="text-8xl mb-6">💌</div>
-              <p className="text-2xl text-gray-600">Membuka surat cinta dari Mas Bagus...</p>
+              <div className="text-6xl md:text-8xl mb-4 md:mb-6">💌</div>
+              <p className="text-xl md:text-2xl text-gray-600">Membuka surat cinta dari Mas Bagus...</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1054,39 +1032,39 @@ function LoveLetterSection({ name }) {
             animate={{ opacity: 1, y: 0 }}
             className="w-full max-w-2xl"
           >
-            <div className="bg-white/95 rounded-3xl p-8 shadow-2xl">
-              <div className="text-center mb-8">
-                <div className="inline-block p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-4">
-                  <Heart className="w-10 h-10 text-white" />
+            <div className="bg-white/95 rounded-3xl p-6 md:p-8 shadow-2xl">
+              <div className="text-center mb-6 md:mb-8">
+                <div className="inline-block p-3 md:p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-3 md:mb-4">
+                  <Heart className="w-8 h-8 md:w-10 md:h-10 text-white" />
                 </div>
-                <h3 className="text-3xl font-bold text-pink-700">Surat Cinta Untukmu</h3>
-                <p className="text-gray-600 mt-2">Ditulis dengan cinta tak terhingga oleh Mas Bagus</p>
+                <h3 className="text-2xl md:text-3xl font-bold text-pink-700">Surat Cinta Untukmu</h3>
+                <p className="text-gray-600 mt-2 text-sm md:text-base">Ditulis dengan cinta tak terhingga oleh Mas Bagus</p>
               </div>
 
-              <div className="space-y-4">
+              <div className="space-y-3 md:space-y-4">
                 {visibleMessages.map((message, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex gap-4"
+                    className="flex gap-3 md:gap-4"
                   >
                     <div className="flex-shrink-0 pt-1">
-                      <div className="w-3 h-3 bg-pink-400 rounded-full"></div>
+                      <div className="w-2 h-2 md:w-3 md:h-3 bg-pink-400 rounded-full"></div>
                     </div>
-                    <p className="text-lg text-gray-700 leading-relaxed">{message}</p>
+                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">{message}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="mt-12 pt-8 border-t border-pink-200">
+              <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-pink-200">
                 <div className="text-right">
-                  <p className="text-pink-600 font-bold text-2xl mb-2">
+                  <p className="text-pink-600 font-bold text-xl md:text-2xl mb-2">
                     Dengan cinta yang abadi,
                   </p>
-                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-2 rounded-lg inline-block">
-                    <p className="text-xl font-bold">Mas Bagus</p>
+                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-2 md:px-8 md:py-2 rounded-lg inline-block">
+                    <p className="text-lg md:text-xl font-bold">Mas Bagus</p>
                   </div>
                 </div>
               </div>
@@ -1110,60 +1088,60 @@ function FinalSection({ name, onPlayAudio, musicPlaying }) {
   };
 
   return (
-    <div className="h-full bg-gradient-to-b from-purple-100 via-pink-100 to-rose-100 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center justify-center p-8">
+    <div className="h-full w-full bg-gradient-to-b from-purple-100 via-pink-100 to-rose-100 overflow-y-auto">
+      <div className="min-h-full flex flex-col items-center justify-center p-6 md:p-8">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="relative mb-12"
+          className="relative mb-8 md:mb-12"
         >
           <div className="relative">
-            <div className="w-72 h-72 bg-white rounded-full p-4 shadow-2xl">
+            <div className="w-56 h-56 md:w-72 md:h-72 bg-white rounded-full p-3 md:p-4 shadow-2xl">
               <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex flex-col items-center justify-center">
-                <span className="text-8xl mb-4">🎂</span>
+                <span className="text-6xl md:text-8xl mb-3 md:mb-4">🎂</span>
                 <div className="text-center">
-                  <p className="text-2xl font-bold text-pink-700">Happy Birthday!</p>
-                  <p className="text-lg text-gray-600">To My Special Someone</p>
+                  <p className="text-xl md:text-2xl font-bold text-pink-700">Happy Birthday!</p>
+                  <p className="text-base md:text-lg text-gray-600">To My Special Someone</p>
                 </div>
               </div>
             </div>
           </div>
         </motion.div>
 
-        <div className="text-center space-y-6 max-w-2xl">
-          <h2 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="text-center space-y-4 md:space-y-6 max-w-2xl">
+          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">
             Selamat Ulang Tahun ke-23!
           </h2>
           
-          <p className="text-2xl text-gray-700">
+          <p className="text-xl md:text-2xl text-gray-700">
             Untuk <span className="font-bold text-pink-600">{name || "Sayangku"}</span> yang tercinta 💝
           </p>
 
-          <div className="bg-white/90 rounded-2xl p-8 mt-8">
-            <h3 className="text-2xl font-bold text-purple-700 mb-6">
+          <div className="bg-white/90 rounded-2xl p-6 md:p-8 mt-6 md:mt-8">
+            <h3 className="text-xl md:text-2xl font-bold text-purple-700 mb-4 md:mb-6">
               Doa dan Harapan untukmu
             </h3>
             
-            <div className="space-y-4 text-left">
-              <p className="text-lg text-gray-700">Semoga tahun ini membawa kebahagiaan yang lebih besar dari sebelumnya,</p>
-              <p className="text-lg text-gray-700">kesuksesan di setiap usaha yang kamu jalani,</p>
-              <p className="text-lg text-gray-700">dan kesehatan yang selalu menyertai langkahmu.</p>
-              <p className="text-lg text-gray-700">Semoga semua impian dan cita-citamu perlahan tapi pasti menjadi kenyataan.</p>
+            <div className="space-y-3 md:space-y-4 text-left">
+              <p className="text-base md:text-lg text-gray-700">Semoga tahun ini membawa kebahagiaan yang lebih besar dari sebelumnya,</p>
+              <p className="text-base md:text-lg text-gray-700">kesuksesan di setiap usaha yang kamu jalani,</p>
+              <p className="text-base md:text-lg text-gray-700">dan kesehatan yang selalu menyertai langkahmu.</p>
+              <p className="text-base md:text-lg text-gray-700">Semoga semua impian dan cita-citamu perlahan tapi pasti menjadi kenyataan.</p>
             </div>
           </div>
         </div>
 
         {/* Interactive Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-12 w-full max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-8 md:mt-12 w-full max-w-2xl">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onPlayAudio}
-            className={`p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-3 ${musicPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'}`}
+            className={`p-4 md:p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-2 md:gap-3 ${musicPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'}`}
           >
-            <div className="flex items-center gap-3">
-              <Music className="w-8 h-8" />
-              <span className="text-xl">
+            <div className="flex items-center gap-2 md:gap-3">
+              <Music className="w-6 h-6 md:w-8 md:h-8" />
+              <span className="text-lg md:text-xl">
                 {musicPlaying ? 'Musik Sedang Diputar' : 'Putar Lagu Spesial'}
               </span>
             </div>
@@ -1173,11 +1151,11 @@ function FinalSection({ name, onPlayAudio, musicPlaying }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenGift}
-            className="p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
+            className="p-4 md:p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-2 md:gap-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
           >
-            <div className="flex items-center gap-3">
-              <Gift className="w-8 h-8" />
-              <span className="text-xl">
+            <div className="flex items-center gap-2 md:gap-3">
+              <Gift className="w-6 h-6 md:w-8 md:h-8" />
+              <span className="text-lg md:text-xl">
                 {showGift ? 'Hadiah Terbuka!' : 'Buka Hadiah Rahasia'}
               </span>
             </div>
@@ -1185,14 +1163,14 @@ function FinalSection({ name, onPlayAudio, musicPlaying }) {
         </div>
 
         {/* Final Message */}
-        <div className="mt-12 text-center max-w-2xl">
-          <p className="text-gray-600 text-lg">
+        <div className="mt-8 md:mt-12 text-center max-w-2xl">
+          <p className="text-gray-600 text-base md:text-lg">
             Website ini dibuat dengan sepenuh hati oleh Mas Bagus,
           </p>
-          <p className="text-gray-500 mt-2">
+          <p className="text-gray-500 mt-1 md:mt-2 text-sm md:text-base">
             sebagai bukti cinta yang akan abadi dalam memori digital kita.
           </p>
-          <div className="mt-6 text-sm text-gray-400 space-y-1">
+          <div className="mt-4 md:mt-6 text-sm text-gray-400 space-y-1">
             <p>Dibuat khusus untuk {name || "kamu"} di hari ulang tahunmu yang ke-23</p>
           </div>
         </div>
@@ -1210,7 +1188,7 @@ function Confetti() {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
-      {[...Array(150)].map((_, i) => {
+      {[...Array(100)].map((_, i) => {
         const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
         const size = Math.random() * 10 + 4;
         
