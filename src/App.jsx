@@ -1,20 +1,20 @@
-import { useState, useEffect, useRef, useCallback } from "react";
-import { motion, useScroll, useTransform, AnimatePresence } from "framer-motion";
-import { Heart, Star, Sparkles, Music, Gift, Clock, Camera, Video, MessageCircle, Lock, Key, Crown, Flower2, ChevronDown, X } from "lucide-react";
+import { useState, useEffect, useRef } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Heart, Star, Sparkles, Music, Gift, X, Clock, Camera, Video, MessageCircle, Lock, Key, Crown, Flower2, ChevronDown } from "lucide-react";
 
 export default function BirthdayWebsite() {
   const [name, setName] = useState("");
   const [date, setDate] = useState("");
+  const [showConfetti, setShowConfetti] = useState(false);
   const [musicPlaying, setMusicPlaying] = useState(false);
   const [currentSection, setCurrentSection] = useState(0);
-  const [showConfetti, setShowConfetti] = useState(false);
   const audioRef = useRef(null);
-  const correctDate = "14-02-2003";
   const containerRef = useRef(null);
+  const correctDate = "14-02-2003";
 
   const sections = [
     "login",
-    "opening",
+    "opening", 
     "celebration",
     "gallery",
     "timeline",
@@ -27,7 +27,7 @@ export default function BirthdayWebsite() {
       if (musicPlaying) {
         audioRef.current.pause();
       } else {
-        audioRef.current.play().catch(e => console.log("Audio play failed:", e));
+        audioRef.current.play();
       }
       setMusicPlaying(!musicPlaying);
     }
@@ -46,120 +46,64 @@ export default function BirthdayWebsite() {
   }, []);
 
   useEffect(() => {
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes spin-slow {
-        from { transform: rotate(0deg); }
-        to { transform: rotate(360deg); }
-      }
-      @keyframes float {
-        0%, 100% { transform: translateY(0px) rotate(0deg); }
-        50% { transform: translateY(-20px) rotate(10deg); }
-      }
-      @keyframes pulse-heart {
-        0%, 100% { transform: scale(1); }
-        50% { transform: scale(1.2); }
-      }
-      .animate-spin-slow {
-        animation: spin-slow 8s linear infinite;
-      }
-      .animate-float {
-        animation: float 3s ease-in-out infinite;
-      }
-      .animate-pulse-heart {
-        animation: pulse-heart 1s ease-in-out infinite;
-      }
-      .scroll-container {
-        scroll-behavior: smooth;
-      }
-      .scroll-container::-webkit-scrollbar {
-        width: 8px;
-      }
-      .scroll-container::-webkit-scrollbar-track {
-        background: rgba(255, 255, 255, 0.1);
-        border-radius: 10px;
-      }
-      .scroll-container::-webkit-scrollbar-thumb {
-        background: linear-gradient(to bottom, #ec4899, #8b5cf6);
-        border-radius: 10px;
-      }
-    `;
-    document.head.appendChild(style);
-    
-    return () => {
-      document.head.removeChild(style);
-    };
-  }, []);
-
-  // Handle scroll untuk mendeteksi section
-  useEffect(() => {
-    const container = containerRef.current;
-    if (!container) return;
-
+    // Add scroll listener
     const handleScroll = () => {
-      const scrollTop = container.scrollTop;
-      const sectionHeight = container.clientHeight;
-      const current = Math.floor(scrollTop / sectionHeight);
+      const scrollTop = window.scrollY || document.documentElement.scrollTop;
+      const windowHeight = window.innerHeight;
+      const current = Math.floor(scrollTop / windowHeight);
       setCurrentSection(Math.min(current, sections.length - 1));
 
-      // Trigger confetti di section celebration
+      // Trigger confetti di section celebration (section 2)
       if (current === 2 && !showConfetti) {
         setShowConfetti(true);
         setTimeout(() => setShowConfetti(false), 5000);
       }
     };
 
-    container.addEventListener('scroll', handleScroll);
-    return () => container.removeEventListener('scroll', handleScroll);
-  }, [showConfetti]);
+    window.addEventListener('scroll', handleScroll);
+    return () => window.removeEventListener('scroll', handleScroll);
+  }, [showConfetti, sections.length]);
 
-  const scrollToSection = useCallback((index) => {
-    const container = containerRef.current;
-    if (!container) return;
-    
-    const sectionHeight = container.clientHeight;
-    container.scrollTo({
+  const scrollToSection = (index) => {
+    const sectionHeight = window.innerHeight;
+    window.scrollTo({
       top: sectionHeight * index,
       behavior: 'smooth'
     });
-  }, []);
-
-  // Auto scroll dengan wheel
-  useEffect(() => {
-    const handleWheel = (e) => {
-      e.preventDefault();
-      const direction = e.deltaY > 0 ? 1 : -1;
-      const nextSection = Math.max(0, Math.min(sections.length - 1, currentSection + direction));
-      
-      if (nextSection !== currentSection) {
-        scrollToSection(nextSection);
-      }
-    };
-
-    window.addEventListener('wheel', handleWheel, { passive: false });
-    return () => window.removeEventListener('wheel', handleWheel);
-  }, [currentSection, scrollToSection, sections.length]);
+  };
 
   return (
-    <div className="relative w-screen h-screen overflow-hidden bg-gradient-to-br from-pink-100 via-purple-50 to-rose-100 font-sans">
+    <div className="relative font-sans">
       {/* Background Elements */}
-      <div className="absolute inset-0 overflow-hidden pointer-events-none">
-        {[...Array(20)].map((_, i) => (
+      <div className="fixed inset-0 overflow-hidden pointer-events-none z-0">
+        <motion.div 
+          className="absolute top-10 left-10 w-24 h-24 bg-pink-300 rounded-full opacity-20"
+          animate={{ scale: [1, 1.2, 1] }}
+          transition={{ duration: 4, repeat: Infinity }}
+        ></motion.div>
+        <motion.div 
+          className="absolute bottom-20 right-20 w-32 h-32 bg-purple-300 rounded-full opacity-15"
+          animate={{ y: [0, -20, 0] }}
+          transition={{ duration: 5, repeat: Infinity }}
+        ></motion.div>
+        
+        {/* Floating hearts */}
+        {[...Array(8)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute text-pink-300"
             style={{
-              left: `${(i * 5) % 100}%`,
-              top: `${(i * 7) % 100}%`,
-              fontSize: `${Math.random() * 20 + 10}px`,
+              left: `${(i * 12) % 100}%`,
+              top: `${(i * 15) % 100}%`,
+              fontSize: `${Math.random() * 24 + 16}px`,
             }}
             animate={{
-              y: [0, -50, 0],
-              rotate: [0, 180],
-              opacity: [0.2, 0.5, 0.2],
+              y: [0, -100, 0],
+              rotate: [0, 360],
+              opacity: [0.3, 0.8, 0.3],
             }}
             transition={{
-              duration: Math.random() * 10 + 5,
+              duration: Math.random() * 8 + 5,
               repeat: Infinity,
               ease: "linear",
             }}
@@ -169,44 +113,45 @@ export default function BirthdayWebsite() {
         ))}
       </div>
 
-      {/* Confetti */}
       <AnimatePresence>
         {showConfetti && <Confetti />}
       </AnimatePresence>
 
       {/* Music Player */}
-      <div className="absolute top-6 right-6 z-50">
+      <div className="fixed top-4 right-4 z-50">
         <motion.button
           initial={{ opacity: 0, scale: 0 }}
           animate={{ opacity: 1, scale: 1 }}
           whileHover={{ scale: 1.1 }}
           whileTap={{ scale: 0.9 }}
           onClick={toggleMusic}
-          className={`w-14 h-14 rounded-full shadow-2xl flex items-center justify-center backdrop-blur-lg border-2 ${musicPlaying ? 'bg-pink-500 text-white border-pink-600' : 'bg-white/90 text-pink-600 border-pink-300'}`}
+          className={`w-12 h-12 rounded-full shadow-lg flex items-center justify-center backdrop-blur-sm ${musicPlaying ? 'bg-pink-500 text-white' : 'bg-white/80 text-pink-600'}`}
         >
-          <Music className="w-6 h-6" />
+          <Music className="w-5 h-5" />
         </motion.button>
       </div>
 
       {/* Navigation Dots */}
-      <div className="fixed right-6 top-1/2 transform -translate-y-1/2 z-40 hidden md:block">
+      <div className="fixed right-4 top-1/2 transform -translate-y-1/2 z-40 hidden md:block">
         <div className="flex flex-col items-center gap-3">
           {sections.map((_, index) => (
-            <motion.button
+            <button
               key={index}
               onClick={() => scrollToSection(index)}
               className="relative group"
-              whileHover={{ scale: 1.2 }}
-              whileTap={{ scale: 0.9 }}
             >
               <div className={`w-3 h-3 rounded-full transition-all ${currentSection === index ? 'bg-pink-500 scale-125' : 'bg-pink-300'}`} />
-              {currentSection === index && (
-                <motion.div
-                  className="absolute inset-0 rounded-full bg-pink-500 blur-md"
-                  layoutId="activeDot"
-                />
-              )}
-            </motion.button>
+              <div className="absolute right-full mr-3 opacity-0 group-hover:opacity-100 transition-opacity whitespace-nowrap">
+                <div className="bg-white/90 backdrop-blur-sm px-3 py-1 rounded-lg text-xs font-medium text-pink-600">
+                  {index === 0 ? "Login" :
+                   index === 1 ? "Opening" :
+                   index === 2 ? "Celebration" :
+                   index === 3 ? "Gallery" :
+                   index === 4 ? "Timeline" :
+                   index === 5 ? "Love Letter" : "Final"}
+                </div>
+              </div>
+            </button>
           ))}
         </div>
       </div>
@@ -220,13 +165,10 @@ export default function BirthdayWebsite() {
         />
       </div>
 
-      {/* Scroll Container */}
-      <div
-        ref={containerRef}
-        className="scroll-container h-full overflow-y-auto snap-y snap-mandatory"
-      >
+      {/* Main Content - Each Section as Full Screen */}
+      <div ref={containerRef} className="relative z-10">
         {/* Section 1: Login */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen flex items-center justify-center p-4">
           <LoginSection
             name={name}
             setName={setName}
@@ -238,32 +180,32 @@ export default function BirthdayWebsite() {
         </section>
 
         {/* Section 2: Cinematic Opening */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <OpeningSection name={name} />
         </section>
 
         {/* Section 3: Birthday Celebration */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <CelebrationSection name={name} />
         </section>
 
         {/* Section 4: Gallery */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <GallerySection name={name} />
         </section>
 
         {/* Section 5: Timeline */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <TimelineSection name={name} />
         </section>
 
         {/* Section 6: Love Letter */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <LoveLetterSection name={name} />
         </section>
 
         {/* Section 7: Final */}
-        <section className="h-screen w-full snap-start flex items-center justify-center">
+        <section className="min-h-screen">
           <FinalSection
             name={name}
             onPlayAudio={toggleMusic}
@@ -274,11 +216,7 @@ export default function BirthdayWebsite() {
 
       {/* Scroll Down Indicator */}
       {currentSection < sections.length - 1 && (
-        <motion.div
-          initial={{ opacity: 0, y: 10 }}
-          animate={{ opacity: 1, y: 0 }}
-          className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30"
-        >
+        <div className="fixed bottom-8 left-1/2 transform -translate-x-1/2 z-30">
           <div className="flex flex-col items-center">
             <motion.div
               animate={{ y: [0, 10, 0] }}
@@ -291,13 +229,13 @@ export default function BirthdayWebsite() {
               Scroll ke bawah
             </div>
           </div>
-        </motion.div>
+        </div>
       )}
     </div>
   );
 }
 
-// Login Section
+// Login Section - SAMA seperti sebelumnya
 function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) {
   const [isIncorrect, setIsIncorrect] = useState(false);
   const [hint, setHint] = useState("");
@@ -307,6 +245,7 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
     setDate(value);
     setIsIncorrect(value && value !== correctDate);
     
+    // Beri hint jika salah
     if (value && value !== correctDate) {
       setHint("❣️ Ingat tanggal spesial kita pertama kali...");
       setTimeout(() => setHint(""), 3000);
@@ -320,28 +259,23 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
   };
 
   return (
-    <motion.div
-      initial={{ opacity: 0 }}
-      animate={{ opacity: 1 }}
-      className="w-full max-w-4xl mx-auto px-4"
-    >
+    <div className="w-full max-w-4xl mx-auto p-4">
       <motion.div
-        initial={{ y: -50, opacity: 0 }}
-        animate={{ y: 0, opacity: 1 }}
-        transition={{ delay: 0.2 }}
+        initial={{ opacity: 0, scale: 0.9 }}
+        animate={{ opacity: 1, scale: 1 }}
         className="text-center mb-12"
       >
-        <h1 className="text-5xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent mb-4">
+        <h1 className="text-4xl md:text-6xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent mb-4">
           🎀 Gerbang Cinta Kita 🎀
         </h1>
         <p className="text-gray-600 text-lg md:text-xl">Masukkan kode rahasia untuk masuk ke dunia kita berdua</p>
       </motion.div>
 
       <motion.div
-        initial={{ scale: 0.9, opacity: 0 }}
-        animate={{ scale: 1, opacity: 1 }}
+        initial={{ opacity: 0, y: 30 }}
+        animate={{ opacity: 1, y: 0 }}
         transition={{ delay: 0.4 }}
-        className="w-full max-w-md mx-auto bg-white/90 backdrop-blur-lg rounded-3xl p-6 md:p-8 shadow-2xl border-2 border-pink-300/50"
+        className="w-full max-w-md mx-auto space-y-6 bg-white/90 backdrop-blur-md p-6 md:p-8 rounded-3xl shadow-2xl border-2 border-pink-300/50"
       >
         <div className="space-y-6">
           <div>
@@ -373,39 +307,43 @@ function LoginSection({ name, setName, date, setDate, correctDate, onSuccess }) 
             />
           </div>
 
-          {hint && (
-            <motion.p
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: 'auto' }}
-              exit={{ opacity: 0, height: 0 }}
-              className="text-rose-400 text-sm text-center p-3 bg-rose-50 rounded-xl border border-rose-200"
-            >
-              {hint}
+          <AnimatePresence>
+            {hint && (
+              <motion.p
+                initial={{ opacity: 0, height: 0 }}
+                animate={{ opacity: 1, height: 'auto' }}
+                exit={{ opacity: 0, height: 0 }}
+                className="text-rose-400 text-sm text-center p-3 bg-rose-50 rounded-xl border border-rose-200"
+              >
+                {hint}
             </motion.p>
-          )}
+            )}
+          </AnimatePresence>
         </div>
 
-        {date === correctDate && name.trim() && (
-          <motion.button
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            whileHover={{ scale: 1.05 }}
-            whileTap={{ scale: 0.95 }}
-            onClick={handleSubmit}
-            className="w-full mt-6 bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 text-white p-4 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
-          >
-            <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
-            <Sparkles className="w-5 h-5" />
-            Buka Dunia Cinta Kita ✨
-            <Sparkles className="w-5 h-5" />
-          </motion.button>
-        )}
+        <AnimatePresence>
+          {date === correctDate && name.trim() && (
+            <motion.button
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={handleSubmit}
+              className="w-full bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 text-white p-5 rounded-2xl font-bold text-lg shadow-xl hover:shadow-2xl transition-all flex items-center justify-center gap-3 relative overflow-hidden group"
+            >
+              <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000" />
+              <Sparkles className="w-6 h-6" />
+              Buka Dunia Cinta Kita ✨
+              <Sparkles className="w-6 h-6" />
+            </motion.button>
+          )}
+        </AnimatePresence>
       </motion.div>
-    </motion.div>
+    </div>
   );
 }
 
-// Opening Section
+// Opening Section - SAMA seperti sebelumnya
 function OpeningSection({ name }) {
   const [currentTextIndex, setCurrentTextIndex] = useState(0);
   
@@ -413,21 +351,19 @@ function OpeningSection({ name }) {
     `Untuk ${name || "sayangku"}...`,
     `Yang membuat setiap detik terasa seperti dongeng indah...`,
     `Dan setiap momen bersamamu adalah cerita terbaik dalam hidupku...`,
-    `Kamu adalah alasan mengapa pagi selalu lebih ceriah...`,
+    `Kamu adalah alasan mengapa pagi selalu lebih cerah...`,
     `Dan alasan mengapa malam selalu penuh harapan...`
   ];
 
   useEffect(() => {
-    const timers = [];
-    let currentIndex = 0;
+    setCurrentTextIndex(0);
     
+    const timers = [];
     const showText = (index) => {
       if (index < texts.length) {
         const timer = setTimeout(() => {
           setCurrentTextIndex(index);
-          if (index < texts.length - 1) {
-            showText(index + 1);
-          }
+          showText(index + 1);
         }, 3000);
         timers.push(timer);
       }
@@ -435,13 +371,15 @@ function OpeningSection({ name }) {
     
     showText(0);
     
-    return () => timers.forEach(timer => clearTimeout(timer));
-  }, [texts.length]);
+    return () => {
+      timers.forEach(timer => clearTimeout(timer));
+    };
+  }, []);
 
   return (
-    <div className="h-full w-full bg-gradient-to-br from-purple-900 via-pink-900 to-rose-900 text-white relative overflow-hidden">
-      <div className="absolute inset-0">
-        {[...Array(30)].map((_, i) => (
+    <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-purple-900 via-pink-900 to-rose-900 text-white p-8 relative overflow-hidden">
+      <div className="absolute inset-0 overflow-hidden">
+        {[...Array(50)].map((_, i) => (
           <motion.div
             key={i}
             className="absolute w-[2px] h-[2px] bg-white rounded-full"
@@ -462,54 +400,38 @@ function OpeningSection({ name }) {
         ))}
       </div>
 
-      <div className="h-full flex flex-col items-center justify-center p-8 relative z-10">
+      <div className="text-center space-y-12 relative z-10 max-w-3xl">
         <motion.div
-          initial={{ scale: 0 }}
-          animate={{ scale: 1 }}
-          transition={{ type: "spring" }}
-          className="mb-8 md:mb-12"
+          initial={{ scale: 0, rotate: -180 }}
+          animate={{ scale: 1, rotate: 0 }}
+          transition={{ type: "spring", damping: 12, stiffness: 100 }}
+          className="relative mx-auto"
         >
-          <div className="w-24 h-24 md:w-32 md:h-32 bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 rounded-full flex items-center justify-center shadow-2xl">
-            <Heart className="w-12 h-12 md:w-16 md:h-16 fill-white" />
+          <div className="w-32 h-32 bg-gradient-to-br from-pink-500 via-rose-500 to-purple-500 rounded-full flex items-center justify-center shadow-2xl shadow-pink-500/50">
+            <Heart className="w-16 h-16 fill-white animate-pulse" />
           </div>
         </motion.div>
 
-        <div className="max-w-3xl text-center px-4">
+        <div className="min-h-[180px] flex items-center justify-center">
           <AnimatePresence mode="wait">
-            <motion.h2
+            <motion.p
               key={currentTextIndex}
-              initial={{ opacity: 0, y: 30 }}
+              initial={{ opacity: 0, y: 40 }}
               animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -30 }}
-              className="text-3xl md:text-4xl lg:text-5xl font-light leading-relaxed"
+              exit={{ opacity: 0, y: -40 }}
+              transition={{ type: "spring", damping: 15 }}
+              className="text-3xl md:text-4xl font-light leading-relaxed"
             >
               {texts[currentTextIndex]}
-            </motion.h2>
+            </motion.p>
           </AnimatePresence>
         </div>
-
-        <motion.div
-          animate={{ y: [0, -10, 0] }}
-          transition={{ duration: 2, repeat: Infinity }}
-          className="mt-8 md:mt-16"
-        >
-          <div className="flex items-center gap-2">
-            {[...Array(3)].map((_, i) => (
-              <motion.div
-                key={i}
-                className="w-2 h-2 bg-pink-400 rounded-full"
-                animate={{ scale: [1, 1.5, 1] }}
-                transition={{ duration: 1, repeat: Infinity, delay: i * 0.2 }}
-              />
-            ))}
-          </div>
-        </motion.div>
       </div>
     </div>
   );
 }
 
-// Celebration Section
+// Celebration Section - SAMA seperti sebelumnya
 function CelebrationSection({ name }) {
   const [isShaking, setIsShaking] = useState(false);
 
@@ -520,12 +442,12 @@ function CelebrationSection({ name }) {
   }, []);
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-pink-100 to-rose-100 relative overflow-hidden">
+    <div className="min-h-screen flex items-center justify-center p-6 relative overflow-hidden">
       <div className="absolute inset-0">
-        {[...Array(20)].map((_, i) => (
+        {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-3xl md:text-4xl"
+            className="absolute text-4xl"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -533,6 +455,7 @@ function CelebrationSection({ name }) {
             animate={{
               y: [0, -100, 0],
               rotate: [0, 360],
+              scale: [0.5, 1, 0.5],
             }}
             transition={{
               duration: Math.random() * 5 + 3,
@@ -540,48 +463,48 @@ function CelebrationSection({ name }) {
               ease: "linear",
             }}
           >
-            {["🎉", "🎊", "🎁", "✨"][i % 4]}
+            {["🎉", "🎊", "🎁", "✨", "🌟", "💫", "🌸", "💖"][i % 8]}
           </motion.div>
         ))}
       </div>
 
-      <div className="h-full flex flex-col items-center justify-center p-6">
+      <div className="text-center space-y-8 relative z-10 max-w-4xl">
         <motion.div
-          initial={{ y: -100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="mb-8 md:mb-12"
+          initial={{ scale: 0, y: 100 }}
+          animate={{ scale: 1, y: 0 }}
+          transition={{ type: "spring", damping: 15 }}
+          className="relative"
         >
-          <div className="relative">
+          <div className="relative w-64 h-64 mx-auto">
             {/* Cake */}
-            <div className="w-48 h-48 md:w-64 md:h-64 relative">
-              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-36 md:w-48 h-20 md:h-32 bg-gradient-to-b from-amber-300 to-amber-600 rounded-t-3xl">
-                <div className="absolute -top-6 md:-top-8 left-1/2 transform -translate-x-1/2 w-44 md:w-56 h-12 md:h-16 bg-gradient-to-b from-pink-300 to-rose-500 rounded-full"></div>
-                <div className="absolute -top-12 md:-top-16 left-1/2 transform -translate-x-1/2 w-36 md:w-44 h-8 md:h-12 bg-gradient-to-b from-white to-pink-200 rounded-full"></div>
-                
-                {/* Candles */}
-                {[...Array(23)].map((_, i) => (
-                  <motion.div
-                    key={i}
-                    className="absolute bottom-full"
-                    style={{
-                      left: `${(i * 20) % 200}%`,
-                      bottom: `${30 + (Math.floor(i / 10) * 20)}%`,
-                    }}
-                    animate={{ 
-                      y: [0, -5, 0],
-                      rotate: [0, 5, 0, -5, 0]
-                    }}
-                    transition={{ 
-                      duration: 1 + Math.random(),
-                      repeat: Infinity,
-                      delay: i * 0.1
-                    }}
-                  >
-                    <div className="w-1 h-6 bg-gradient-to-b from-yellow-400 to-red-500 rounded-t-full"></div>
-                    <div className="w-2 h-2 bg-yellow-300 rounded-full -mt-1 mx-auto blur-sm"></div>
-                  </motion.div>
-                ))}
-              </div>
+            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-32 bg-gradient-to-b from-amber-300 to-amber-600 rounded-t-3xl shadow-lg">
+              {/* Cake Layers */}
+              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-56 h-16 bg-gradient-to-b from-pink-300 to-rose-500 rounded-full shadow-lg"></div>
+              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-44 h-12 bg-gradient-to-b from-white to-pink-200 rounded-full shadow-lg"></div>
+              
+              {/* Candles */}
+              {[...Array(23)].map((_, i) => (
+                <motion.div
+                  key={i}
+                  className="absolute bottom-full"
+                  style={{
+                    left: `${(i * 20) % 200}%`,
+                    bottom: `${40 + (Math.floor(i / 10) * 20)}%`,
+                  }}
+                  animate={{ 
+                    y: [0, -5, 0],
+                    rotate: [0, 5, 0, -5, 0]
+                  }}
+                  transition={{ 
+                    duration: 1 + Math.random(),
+                    repeat: Infinity,
+                    delay: i * 0.1
+                  }}
+                >
+                  <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-red-500 rounded-t-full"></div>
+                  <div className="w-3 h-3 bg-yellow-300 rounded-full -mt-1 mx-auto blur-sm"></div>
+                </motion.div>
+              ))}
             </div>
           </div>
         </motion.div>
@@ -589,24 +512,25 @@ function CelebrationSection({ name }) {
         <motion.div
           initial={{ y: 100, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5 }}
-          className="text-center space-y-4 md:space-y-6 px-4"
+          transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
+          className="space-y-4"
         >
           <motion.h1
             animate={isShaking ? { 
               scale: [1, 1.1, 1],
               rotate: [0, 2, -2, 0]
             } : {}}
-            className="text-4xl md:text-6xl lg:text-7xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
+            transition={{ duration: 0.5 }}
+            className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent"
           >
             SELAMAT ULANG TAHUN!
           </motion.h1>
           
-          <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-2 md:px-8 md:py-3 rounded-full text-2xl md:text-3xl font-bold shadow-lg inline-block">
+          <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-3 rounded-full text-3xl font-bold shadow-lg inline-block">
             🎂 {name || "Sayangku"} yang ke-23 🎂
           </div>
           
-          <p className="text-xl md:text-2xl text-gray-700 font-semibold">
+          <p className="text-2xl text-gray-700 font-semibold">
             Semoga setiap lilin ini menerangi jalan menuju kebahagiaanmu! 💝
           </p>
         </motion.div>
@@ -615,7 +539,7 @@ function CelebrationSection({ name }) {
   );
 }
 
-// Gallery Section
+// Gallery Section - SAMA seperti sebelumnya
 function GallerySection({ name }) {
   const [selectedAlbum, setSelectedAlbum] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -707,56 +631,48 @@ function GallerySection({ name }) {
   };
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-blue-50 via-purple-50 to-pink-50">
+      <div className="max-w-6xl w-full">
         <motion.div
           initial={{ y: -30, opacity: 0 }}
           animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-8 md:mb-12"
+          className="text-center mb-12"
         >
           <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
             📸 Galeri Kenangan Kita
           </h2>
-          <p className="text-gray-600 text-lg md:text-xl">Kenangan indah yang selalu menghangatkan hati</p>
+          <p className="text-gray-600 text-lg md:text-xl">Klik album favorit untuk melihat detail kenangan indah kita</p>
         </motion.div>
 
-        <div className="w-full max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8">
-            {albums.map((album, index) => (
-              <motion.div
-                key={album.id}
-                initial={{ opacity: 0, y: 50 }}
-                animate={{ opacity: 1, y: 0 }}
-                transition={{ delay: index * 0.2 }}
-                whileHover={{ y: -10 }}
-                className="cursor-pointer"
-                onClick={() => handleAlbumClick(album)}
-              >
-                <div className={`h-48 md:h-64 rounded-3xl bg-gradient-to-br ${album.color} p-6 md:p-8 shadow-xl`}>
-                  <div className="h-full flex flex-col items-center justify-center text-white text-center">
-                    <span className="text-5xl md:text-6xl mb-4">{album.icon}</span>
-                    <h3 className="text-xl md:text-2xl font-bold mb-2">{album.title}</h3>
-                    <p className="opacity-90 text-sm md:text-base">{album.date}</p>
-                  </div>
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+          {albums.map((album, index) => (
+            <motion.div
+              key={album.id}
+              initial={{ opacity: 0, scale: 0.8 }}
+              animate={{ opacity: 1, scale: 1 }}
+              transition={{ delay: index * 0.2, type: "spring" }}
+              whileHover={{ y: -10 }}
+              className="cursor-pointer"
+              onClick={() => handleAlbumClick(album)}
+            >
+              <div className={`h-64 rounded-3xl bg-gradient-to-br ${album.color} p-8 shadow-xl`}>
+                <div className="h-full flex flex-col items-center justify-center text-white text-center">
+                  <span className="text-6xl mb-4">{album.icon}</span>
+                  <h3 className="text-2xl font-bold mb-2">{album.title}</h3>
+                  <p className="opacity-90">{album.date}</p>
                 </div>
-                <div className="mt-4 text-center">
-                  <p className="text-gray-700">{album.description}</p>
-                </div>
-              </motion.div>
-            ))}
-          </div>
+              </div>
+              <div className="mt-4 text-center">
+                <p className="text-gray-700">{album.description}</p>
+              </div>
+            </motion.div>
+          ))}
         </div>
 
-        {/* Album Detail Popup */}
+        {/* Popup */}
         <AnimatePresence>
           {isPopupOpen && selectedAlbum && (
-            <motion.div
-              initial={{ opacity: 0 }}
-              animate={{ opacity: 1 }}
-              exit={{ opacity: 0 }}
-              className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
-              onClick={() => setIsPopupOpen(false)}
-            >
+            <div className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4">
               <motion.div
                 initial={{ scale: 0.9, opacity: 0 }}
                 animate={{ scale: 1, opacity: 1 }}
@@ -770,10 +686,7 @@ function GallerySection({ name }) {
                       <h3 className="text-2xl font-bold">{selectedAlbum.title}</h3>
                       <p className="opacity-90">{selectedAlbum.date}</p>
                     </div>
-                    <button 
-                      onClick={() => setIsPopupOpen(false)}
-                      className="text-white hover:text-white/80"
-                    >
+                    <button onClick={() => setIsPopupOpen(false)} className="text-white hover:text-white/80">
                       <X className="w-6 h-6" />
                     </button>
                   </div>
@@ -804,7 +717,7 @@ function GallerySection({ name }) {
                   </div>
                 </div>
               </motion.div>
-            </motion.div>
+            </div>
           )}
         </AnimatePresence>
       </div>
@@ -812,7 +725,7 @@ function GallerySection({ name }) {
   );
 }
 
-// Timeline Section
+// Timeline Section - SAMA seperti sebelumnya
 function TimelineSection({ name }) {
   const [currentYear, setCurrentYear] = useState(2023);
 
@@ -885,96 +798,78 @@ function TimelineSection({ name }) {
   const currentTimeline = timelineEvents.find(t => t.year === currentYear);
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-purple-50 to-pink-50 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center p-6 md:p-8">
-        <motion.div
-          initial={{ y: -30, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          className="text-center mb-8 md:mb-12"
-        >
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent mb-4">
-            Timeline Cinta Kita
-          </h2>
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-purple-50 to-pink-50">
+      <div className="max-w-4xl w-full space-y-8">
+        <div className="text-center space-y-4">
+          <motion.div
+            initial={{ y: -20, opacity: 0 }}
+            animate={{ y: 0, opacity: 1 }}
+            className="inline-flex items-center gap-3"
+          >
+            <Clock className="w-8 h-8 text-purple-500" />
+            <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent">
+              Timeline Cinta Kita
+            </h2>
+            <Heart className="w-8 h-8 text-pink-500 fill-pink-500" />
+          </motion.div>
           <p className="text-gray-600 text-lg md:text-xl">Perjalanan indah kita dari awal hingga sekarang</p>
-        </motion.div>
+        </div>
 
-        <div className="w-full max-w-4xl">
-          {/* Year Navigation */}
-          <div className="flex flex-wrap justify-center gap-3 md:gap-4 mb-8 md:mb-12">
-            {timelineEvents.map(({ year }) => (
-              <button
-                key={year}
-                onClick={() => setCurrentYear(year)}
-                className={`px-4 py-2 md:px-6 md:py-3 rounded-full font-bold transition-all ${currentYear === year ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white' : 'bg-white text-gray-600'}`}
-              >
-                {year}
-              </button>
-            ))}
+        {/* Year Navigation */}
+        <div className="flex justify-center gap-4">
+          {timelineEvents.map(({ year }) => (
+            <button
+              key={year}
+              onClick={() => setCurrentYear(year)}
+              className={`px-6 py-3 rounded-full font-bold transition-all ${currentYear === year ? 'bg-gradient-to-r from-pink-500 to-purple-500 text-white shadow-lg' : 'bg-white/80 text-gray-600 border border-pink-200'}`}
+            >
+              {year}
+            </button>
+          ))}
+        </div>
+
+        {/* Timeline Content */}
+        <motion.div
+          key={currentYear}
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="space-y-6"
+        >
+          <div className="text-center mb-8">
+            <div className="inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-2 rounded-full text-xl font-bold">
+              Tahun {currentYear}
+            </div>
           </div>
 
-          {/* Timeline Content */}
-          <motion.div
-            key={currentYear}
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="mb-8 md:mb-12"
-          >
-            <div className="text-center mb-6 md:mb-8">
-              <div className="inline-block bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-2 md:px-8 md:py-2 rounded-full text-lg md:text-xl font-bold">
-                Tahun {currentYear}
-              </div>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6">
-              {currentTimeline?.events.map((event, index) => (
-                <motion.div
-                  key={index}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: index * 0.2 }}
-                  className="bg-white rounded-2xl p-4 md:p-6 shadow-lg"
-                >
-                  <div className="flex items-center gap-3 md:gap-4">
-                    <div className="text-2xl md:text-3xl">{event.icon}</div>
-                    <div>
-                      <p className="text-sm text-pink-500 font-semibold">{event.date}</p>
-                      <h4 className="text-lg md:text-xl font-bold text-gray-800 mt-1">{event.title}</h4>
-                      <p className="text-gray-600 mt-2 text-sm md:text-base">{event.description}</p>
-                    </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {currentTimeline?.events.map((event, index) => (
+              <motion.div
+                key={`${currentYear}-${index}`}
+                initial={{ opacity: 0, y: 20 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ delay: index * 0.2 }}
+                className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-pink-200"
+              >
+                <div className="flex flex-col items-center text-center space-y-4">
+                  <div className="w-16 h-16 rounded-full bg-gradient-to-br from-pink-100 to-purple-100 flex items-center justify-center">
+                    <span className="text-3xl">{event.icon}</span>
                   </div>
-                </motion.div>
-              ))}
-            </div>
-          </motion.div>
-
-          {/* Personal Message */}
-          <motion.div
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            className="bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 md:p-8"
-          >
-            <div className="flex items-center gap-4 mb-4 md:mb-6">
-              <div className="w-10 h-10 md:w-12 md:h-12 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
-                <Heart className="w-5 h-5 md:w-6 md:h-6 text-white" />
-              </div>
-              <div>
-                <h4 className="text-lg md:text-xl font-bold text-pink-700">Refleksi Cinta</h4>
-                <p className="text-gray-600 text-sm md:text-base">Dari Mas Bagus untuk {name || "kekasihku"}</p>
-              </div>
-            </div>
-            <p className="text-gray-700 text-base md:text-lg">
-              "Lihatlah bagaimana perjalanan kita tumbuh dari waktu ke waktu. 
-              Setiap tahun bersama kamu adalah tahun yang penuh makna, tawa, dan cinta. 
-              Aku bersyukur bisa menjadi bagian dari setiap bab dalam cerita hidupmu."
-            </p>
-          </motion.div>
-        </div>
+                  <div>
+                    <p className="text-sm text-pink-500 font-semibold">{event.date}</p>
+                    <h4 className="text-xl font-bold text-gray-800 mt-1">{event.title}</h4>
+                    <p className="text-gray-600 mt-2">{event.description}</p>
+                  </div>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </motion.div>
       </div>
     </div>
   );
 }
 
-// Love Letter Section
+// Love Letter Section - SAMA seperti sebelumnya
 function LoveLetterSection({ name }) {
   const [visibleMessages, setVisibleMessages] = useState([]);
   const [showEnvelope, setShowEnvelope] = useState(true);
@@ -999,7 +894,7 @@ function LoveLetterSection({ name }) {
     setShowEnvelope(true);
     const timer = setTimeout(() => {
       setShowEnvelope(false);
-      // Tampilkan semua pesan sekaligus setelah envelope terbuka
+      // Tampilkan semua pesan sekaligus
       setTimeout(() => {
         setVisibleMessages(messages);
       }, 1000);
@@ -1009,8 +904,8 @@ function LoveLetterSection({ name }) {
   }, [messages]);
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-rose-100 to-pink-100 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center justify-center p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-rose-100 to-pink-100">
+      <div className="max-w-2xl w-full">
         <AnimatePresence>
           {showEnvelope && (
             <motion.div
@@ -1020,8 +915,8 @@ function LoveLetterSection({ name }) {
               exit={{ scale: 1.2, opacity: 0 }}
               className="text-center"
             >
-              <div className="text-6xl md:text-8xl mb-4 md:mb-6">💌</div>
-              <p className="text-xl md:text-2xl text-gray-600">Membuka surat cinta dari Mas Bagus...</p>
+              <div className="text-8xl mb-6">💌</div>
+              <p className="text-2xl text-gray-600">Membuka surat cinta dari Mas Bagus...</p>
             </motion.div>
           )}
         </AnimatePresence>
@@ -1030,41 +925,41 @@ function LoveLetterSection({ name }) {
           <motion.div
             initial={{ opacity: 0, y: 50 }}
             animate={{ opacity: 1, y: 0 }}
-            className="w-full max-w-2xl"
+            className="w-full"
           >
-            <div className="bg-white/95 rounded-3xl p-6 md:p-8 shadow-2xl">
-              <div className="text-center mb-6 md:mb-8">
-                <div className="inline-block p-3 md:p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-3 md:mb-4">
-                  <Heart className="w-8 h-8 md:w-10 md:h-10 text-white" />
+            <div className="bg-white/95 rounded-3xl p-8 shadow-2xl">
+              <div className="text-center mb-8">
+                <div className="inline-block p-4 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full mb-4">
+                  <Heart className="w-10 h-10 text-white" />
                 </div>
-                <h3 className="text-2xl md:text-3xl font-bold text-pink-700">Surat Cinta Untukmu</h3>
-                <p className="text-gray-600 mt-2 text-sm md:text-base">Ditulis dengan cinta tak terhingga oleh Mas Bagus</p>
+                <h3 className="text-3xl font-bold text-pink-700">Surat Cinta Untukmu</h3>
+                <p className="text-gray-600 mt-2">Ditulis dengan cinta tak terhingga oleh Mas Bagus</p>
               </div>
 
-              <div className="space-y-3 md:space-y-4">
+              <div className="space-y-4">
                 {visibleMessages.map((message, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="flex gap-3 md:gap-4"
+                    className="flex gap-4"
                   >
                     <div className="flex-shrink-0 pt-1">
-                      <div className="w-2 h-2 md:w-3 md:h-3 bg-pink-400 rounded-full"></div>
+                      <div className="w-3 h-3 bg-pink-400 rounded-full"></div>
                     </div>
-                    <p className="text-base md:text-lg text-gray-700 leading-relaxed">{message}</p>
+                    <p className="text-lg text-gray-700 leading-relaxed">{message}</p>
                   </motion.div>
                 ))}
               </div>
 
-              <div className="mt-8 md:mt-12 pt-6 md:pt-8 border-t border-pink-200">
+              <div className="mt-12 pt-8 border-t border-pink-200">
                 <div className="text-right">
-                  <p className="text-pink-600 font-bold text-xl md:text-2xl mb-2">
+                  <p className="text-pink-600 font-bold text-2xl mb-2">
                     Dengan cinta yang abadi,
                   </p>
-                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-2 md:px-8 md:py-2 rounded-lg inline-block">
-                    <p className="text-lg md:text-xl font-bold">Mas Bagus</p>
+                  <div className="bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-2 rounded-lg inline-block">
+                    <p className="text-xl font-bold">Mas Bagus</p>
                   </div>
                 </div>
               </div>
@@ -1076,7 +971,7 @@ function LoveLetterSection({ name }) {
   );
 }
 
-// Final Section
+// Final Section - SAMA seperti sebelumnya
 function FinalSection({ name, onPlayAudio, musicPlaying }) {
   const [showGift, setShowGift] = useState(false);
   
@@ -1088,60 +983,44 @@ function FinalSection({ name, onPlayAudio, musicPlaying }) {
   };
 
   return (
-    <div className="h-full w-full bg-gradient-to-b from-purple-100 via-pink-100 to-rose-100 overflow-y-auto">
-      <div className="min-h-full flex flex-col items-center justify-center p-6 md:p-8">
+    <div className="min-h-screen flex items-center justify-center p-6 bg-gradient-to-b from-purple-100 via-pink-100 to-rose-100">
+      <div className="max-w-4xl w-full space-y-8">
         <motion.div
           initial={{ scale: 0 }}
           animate={{ scale: 1 }}
-          className="relative mb-8 md:mb-12"
+          className="relative mx-auto w-72 h-72"
         >
-          <div className="relative">
-            <div className="w-56 h-56 md:w-72 md:h-72 bg-white rounded-full p-3 md:p-4 shadow-2xl">
-              <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex flex-col items-center justify-center">
-                <span className="text-6xl md:text-8xl mb-3 md:mb-4">🎂</span>
-                <div className="text-center">
-                  <p className="text-xl md:text-2xl font-bold text-pink-700">Happy Birthday!</p>
-                  <p className="text-base md:text-lg text-gray-600">To My Special Someone</p>
-                </div>
+          <div className="relative w-full h-full bg-white rounded-full p-4 shadow-2xl">
+            <div className="w-full h-full bg-gradient-to-br from-pink-100 to-purple-100 rounded-full flex flex-col items-center justify-center p-8">
+              <span className="text-8xl mb-4">🎂</span>
+              <div className="text-center">
+                <p className="text-2xl font-bold text-pink-700">Happy Birthday!</p>
+                <p className="text-lg text-gray-600">To My Special Someone</p>
               </div>
             </div>
           </div>
         </motion.div>
 
-        <div className="text-center space-y-4 md:space-y-6 max-w-2xl">
-          <h2 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">
+        <div className="text-center space-y-4">
+          <h2 className="text-5xl font-bold bg-gradient-to-r from-pink-600 via-rose-600 to-purple-600 bg-clip-text text-transparent">
             Selamat Ulang Tahun ke-23!
           </h2>
-          
-          <p className="text-xl md:text-2xl text-gray-700">
+          <p className="text-2xl text-gray-700">
             Untuk <span className="font-bold text-pink-600">{name || "Sayangku"}</span> yang tercinta 💝
           </p>
-
-          <div className="bg-white/90 rounded-2xl p-6 md:p-8 mt-6 md:mt-8">
-            <h3 className="text-xl md:text-2xl font-bold text-purple-700 mb-4 md:mb-6">
-              Doa dan Harapan untukmu
-            </h3>
-            
-            <div className="space-y-3 md:space-y-4 text-left">
-              <p className="text-base md:text-lg text-gray-700">Semoga tahun ini membawa kebahagiaan yang lebih besar dari sebelumnya,</p>
-              <p className="text-base md:text-lg text-gray-700">kesuksesan di setiap usaha yang kamu jalani,</p>
-              <p className="text-base md:text-lg text-gray-700">dan kesehatan yang selalu menyertai langkahmu.</p>
-              <p className="text-base md:text-lg text-gray-700">Semoga semua impian dan cita-citamu perlahan tapi pasti menjadi kenyataan.</p>
-            </div>
-          </div>
         </div>
 
         {/* Interactive Buttons */}
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-6 mt-8 md:mt-12 w-full max-w-2xl">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
           <motion.button
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={onPlayAudio}
-            className={`p-4 md:p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-2 md:gap-3 ${musicPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'}`}
+            className={`p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-3 ${musicPlaying ? 'bg-gradient-to-r from-green-500 to-emerald-600 text-white' : 'bg-gradient-to-r from-pink-500 to-rose-500 text-white'}`}
           >
-            <div className="flex items-center gap-2 md:gap-3">
-              <Music className="w-6 h-6 md:w-8 md:h-8" />
-              <span className="text-lg md:text-xl">
+            <div className="flex items-center gap-3">
+              <Music className="w-8 h-8" />
+              <span className="text-xl">
                 {musicPlaying ? 'Musik Sedang Diputar' : 'Putar Lagu Spesial'}
               </span>
             </div>
@@ -1151,35 +1030,22 @@ function FinalSection({ name, onPlayAudio, musicPlaying }) {
             whileHover={{ scale: 1.05 }}
             whileTap={{ scale: 0.95 }}
             onClick={handleOpenGift}
-            className="p-4 md:p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-2 md:gap-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
+            className="p-6 rounded-2xl font-bold shadow-lg transition-all flex flex-col items-center justify-center gap-3 bg-gradient-to-r from-purple-500 to-indigo-600 text-white"
           >
-            <div className="flex items-center gap-2 md:gap-3">
-              <Gift className="w-6 h-6 md:w-8 md:h-8" />
-              <span className="text-lg md:text-xl">
+            <div className="flex items-center gap-3">
+              <Gift className="w-8 h-8" />
+              <span className="text-xl">
                 {showGift ? 'Hadiah Terbuka!' : 'Buka Hadiah Rahasia'}
               </span>
             </div>
           </motion.button>
-        </div>
-
-        {/* Final Message */}
-        <div className="mt-8 md:mt-12 text-center max-w-2xl">
-          <p className="text-gray-600 text-base md:text-lg">
-            Website ini dibuat dengan sepenuh hati oleh Mas Bagus,
-          </p>
-          <p className="text-gray-500 mt-1 md:mt-2 text-sm md:text-base">
-            sebagai bukti cinta yang akan abadi dalam memori digital kita.
-          </p>
-          <div className="mt-4 md:mt-6 text-sm text-gray-400 space-y-1">
-            <p>Dibuat khusus untuk {name || "kamu"} di hari ulang tahunmu yang ke-23</p>
-          </div>
         </div>
       </div>
     </div>
   );
 }
 
-// Confetti Component
+// Confetti Component - SAMA seperti sebelumnya
 function Confetti() {
   const confettiColors = [
     '#f472b6', '#ec4899', '#db2777', '#c026d3', '#a855f7',
@@ -1188,7 +1054,7 @@ function Confetti() {
 
   return (
     <div className="fixed inset-0 pointer-events-none z-40 overflow-hidden">
-      {[...Array(100)].map((_, i) => {
+      {[...Array(150)].map((_, i) => {
         const color = confettiColors[Math.floor(Math.random() * confettiColors.length)];
         const size = Math.random() * 10 + 4;
         
