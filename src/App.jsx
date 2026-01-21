@@ -113,7 +113,7 @@ export default function BirthdayWebsite() {
       case 2:
         return <BirthdayReveal key="scene2" name={name} next={next} />;
       case 3:
-        return <GiftGallery key="scene3" name={name} onNext={next} />;
+        return <MemoryGallery key="scene3" name={name} onNext={next} />;
       case 4:
         return <SpecialMessage key="scene4" name={name} onNext={next} />;
       case 5:
