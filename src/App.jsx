@@ -712,7 +712,7 @@ function BirthdayReveal({ name, next }) {
   );
 }
 
-// SCENE 3: Memory Gallery - Galeri Kenangan Spesial
+// SCENE 3: Memory Gallery - Galeri Kenangan Spesial (SEDERHANA DULU)
 function MemoryGallery({ name, onNext }) {
   const [selectedMemory, setSelectedMemory] = useState(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
@@ -722,7 +722,7 @@ function MemoryGallery({ name, onNext }) {
       id: "memory1",
       title: "Awal Kisah Kita",
       date: "Momen Pertama",
-      description: "Saat pertama kali kenal, tersenyum, dan memulai cerita",
+      description: "Saat pertama kali kenal",
       icon: "💖",
       color: "from-pink-400 to-rose-500",
       photo: "https://images.unsplash.com/photo-1518568814500-bf0f8d125f46?auto=format&fit=crop&w=600",
@@ -732,24 +732,15 @@ function MemoryGallery({ name, onNext }) {
           type: "moment",
           title: "Pertemuan Pertama",
           caption: "Hari itu sangat spesial",
-          icon: "✨",
-          details: "Saat mata kita pertama kali bertemu, sesuatu yang indah dimulai"
-        },
-        {
-          id: 2,
-          type: "feeling",
-          title: "Perasaan Awal",
-          caption: "Hati berdebar-debar",
-          icon: "💗",
-          details: "Setiap detik bersamamu terasa begitu berarti sejak awal"
+          details: "Saat mata kita pertama kali bertemu"
         }
       ]
     },
     {
-      id: "memory2",
+      id: "memory2", 
       title: "Tawa & Kebahagiaan",
       date: "Momen Bahagia",
-      description: "Saat-saat tertawa dan bahagia bersama",
+      description: "Saat-saat tertawa bersama",
       icon: "😂",
       color: "from-yellow-400 to-orange-500",
       photo: "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&w=600",
@@ -759,24 +750,15 @@ function MemoryGallery({ name, onNext }) {
           type: "laughter",
           title: "Tawa yang Menular",
           caption: "Tawamu membuat hariku cerah",
-          icon: "😄",
-          details: "Tawamu adalah musik terindah yang pernah kudengar"
-        },
-        {
-          id: 2,
-          type: "joy",
-          title: "Kebahagiaan Sederhana",
-          caption: "Bersamamu adalah kebahagiaan",
-          icon: "🥰",
-          details: "Hal sederhana bersamamu terasa begitu istimewa"
+          details: "Tawamu adalah musik terindah"
         }
       ]
     },
     {
       id: "memory3",
       title: "Dukungan & Pengertian",
-      date: "Momen Support",
-      description: "Saat kita saling mendukung dan mengerti",
+      date: "Momen Support", 
+      description: "Saling mendukung",
       icon: "🤝",
       color: "from-blue-400 to-cyan-500",
       photo: "https://images.unsplash.com/photo-1544005313-94ddf0286df2?auto=format&fit=crop&w=600",
@@ -786,16 +768,7 @@ function MemoryGallery({ name, onNext }) {
           type: "support",
           title: "Saling Mendukung",
           caption: "Selalu ada satu untuk yang lain",
-          icon: "💪",
-          details: "Di saat sulit maupun senang, kita selalu bersama"
-        },
-        {
-          id: 2,
-          type: "understanding",
-          title: "Saling Mengerti",
-          caption: "Tanpa perlu banyak kata",
-          icon: "🧠",
-          details: "Kita saling mengerti meski tak selalu mengatakan"
+          details: "Di saat sulit maupun senang"
         }
       ]
     }
@@ -808,44 +781,10 @@ function MemoryGallery({ name, onNext }) {
 
   const handleClosePopup = () => {
     setIsPopupOpen(false);
-    setTimeout(() => {
-      setSelectedMemory(null);
-    }, 300);
+    setTimeout(() => setSelectedMemory(null), 300);
   };
 
-  const selectedMemoryItem = selectedMemory ? memories.find(m => m.id === selectedMemory) : null;
-
-  // Instructions untuk upload foto
-  const PhotoUploadGuide = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
-      className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-pink-200 max-w-2xl mx-auto"
-    >
-      <div className="flex items-start gap-4">
-        <div className="bg-pink-100 p-3 rounded-xl">
-          <Camera className="w-6 h-6 text-pink-600" />
-        </div>
-        <div>
-          <h4 className="text-xl font-bold text-pink-700 mb-2">
-            Ingin Menambahkan Foto Kenanganmu?
-          </h4>
-          <p className="text-gray-700 mb-3">
-            Website ini bisa ditambahkan foto-foto kenangan spesial kalian berdua!
-          </p>
-          <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
-            <p className="text-sm text-gray-600 font-medium mb-2">Caranya:</p>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
-              <li>Ganti URL foto di kode dengan URL foto kenanganmu</li>
-              <li>Atau upload ke layanan seperti Imgur/Google Drive</li>
-              <li>Copy link foto dan paste di bagian "photo"</li>
-            </ol>
-          </div>
-        </div>
-      </div>
-    </motion.div>
-  );
+  const selectedMemoryItem = memories.find(m => m.id === selectedMemory);
 
   return (
     <div className="h-full relative">
@@ -853,257 +792,114 @@ function MemoryGallery({ name, onNext }) {
         initial={{ opacity: 0 }}
         animate={{ opacity: 1 }}
         exit={{ opacity: 0 }}
-        className="h-full flex flex-col bg-gradient-to-b from-pink-50 via-rose-50 to-purple-50"
+        className="h-full flex flex-col bg-gradient-to-b from-pink-50 via-rose-50 to-purple-50 p-6"
       >
         {/* Header */}
-        <div className="pt-16 px-6 text-center">
-          <motion.div
-            initial={{ y: -30, opacity: 0 }}
-            animate={{ y: 0, opacity: 1 }}
-            className="inline-flex items-center gap-3 mb-4"
-          >
-            <Flower2 className="w-8 h-8 text-pink-500" />
-            <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
-              📸 Galeri Kenangan Spesial
-            </h2>
-            <Flower2 className="w-8 h-8 text-purple-500" />
-          </motion.div>
-          <p className="text-gray-600 text-lg">Koleksi momen indah untuk mengisi hari spesialmu</p>
+        <div className="text-center mb-8">
+          <h2 className="text-4xl font-bold bg-gradient-to-r from-pink-600 to-purple-600 bg-clip-text text-transparent">
+            📸 Galeri Kenangan Spesial
+          </h2>
+          <p className="text-gray-600 mt-2">Koleksi momen indah untukmu</p>
         </div>
 
         {/* Memory Grid */}
-        <div className="flex-1 overflow-y-auto p-6">
-          <div className="max-w-6xl mx-auto space-y-8">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-              {memories.map((memory, index) => (
-                <motion.div
-                  key={memory.id}
-                  initial={{ opacity: 0, scale: 0.8 }}
-                  animate={{ opacity: 1, scale: 1 }}
-                  transition={{ delay: index * 0.2, type: "spring" }}
-                  whileHover={{
-                    scale: 1.03,
-                    y: -5,
-                    transition: { duration: 0.2 }
-                  }}
-                  whileTap={{ scale: 0.97 }}
-                  className="relative group cursor-pointer"
-                  onClick={() => handleMemoryClick(memory.id)}
-                >
-                  <div className={`aspect-[4/5] rounded-3xl overflow-hidden shadow-2xl relative`}>
-                    {/* Background Photo dengan overlay gradient */}
-                    <div
-                      className="absolute inset-0 bg-cover bg-center"
-                      style={{ backgroundImage: `url(${memory.photo})` }}
-                    >
-                      <div className={`absolute inset-0 bg-gradient-to-t from-black/80 via-black/40 to-transparent`} />
-                    </div>
-                    
-                    {/* Content */}
-                    <div className="relative h-full flex flex-col justify-end p-6">
-                      <div className="mb-4">
-                        <span className="text-4xl mb-2 inline-block">{memory.icon}</span>
-                        <h3 className="text-2xl font-bold text-white mb-1">{memory.title}</h3>
-                        <p className="text-white/90 text-sm">{memory.date}</p>
-                      </div>
-                      <p className="text-white/80 text-sm">{memory.description}</p>
-                    </div>
-                    
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-pink-500/0 to-pink-500/20 opacity-0 group-hover:opacity-100 transition-all duration-300 flex items-center justify-center">
-                      <div className="transform translate-y-4 group-hover:translate-y-0 transition-all duration-300">
-                        <div className="bg-white/95 p-4 rounded-xl shadow-lg text-center">
-                          <p className="text-pink-600 font-bold">Buka Kenangan</p>
-                          <p className="text-sm text-gray-600 mt-1">Klik untuk melihat detail</p>
-                        </div>
-                      </div>
-                    </div>
-                    
-                    {/* Corner Badge */}
-                    <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-pink-600">
-                      {memory.contents.length} kenangan
-                    </div>
-                  </div>
-                </motion.div>
-              ))}
-            </div>
-
-            {/* Ganti "Cara Menikmati Hadiah" dengan pesan yang lebih sesuai */}
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 flex-1">
+          {memories.map((memory, index) => (
             <motion.div
+              key={memory.id}
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.6 }}
-              className="bg-white/90 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-pink-200 max-w-2xl mx-auto"
+              transition={{ delay: index * 0.2 }}
+              className="relative rounded-2xl overflow-hidden shadow-lg cursor-pointer"
+              onClick={() => handleMemoryClick(memory.id)}
             >
-              <div className="flex items-start gap-4">
-                <div className="bg-gradient-to-r from-pink-500 to-purple-500 p-3 rounded-xl">
-                  <Heart className="w-6 h-6 text-white" />
-                </div>
-                <div>
-                  <h4 className="text-xl font-bold text-pink-700 mb-2">
-                    Setiap Kenangan adalah Hadiah
-                  </h4>
-                  <p className="text-gray-700 leading-relaxed">
-                    "Momen-momen indah yang kita bagi adalah harta yang tak ternilai. 
-                    Di ulang tahunmu yang ke-19 ini, mari kita mengenang kembali kebahagiaan 
-                    yang telah kita buat bersama. Semoga di usia yang baru ini, kita bisa 
-                    membuat lebih banyak kenangan manis lagi."
-                  </p>
-                  <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
-                    <Sparkles className="w-4 h-4" />
-                    <span>Scroll ke bawah untuk melanjutkan ke pesan spesial</span>
-                  </div>
+              {/* Photo Background */}
+              <div className="aspect-[4/5] relative">
+                <div 
+                  className="absolute inset-0 bg-cover bg-center"
+                  style={{ backgroundImage: `url(${memory.photo})` }}
+                />
+                <div className="absolute inset-0 bg-gradient-to-t from-black/70 to-transparent" />
+                
+                {/* Content */}
+                <div className="absolute bottom-0 left-0 right-0 p-6 text-white">
+                  <h3 className="text-2xl font-bold mb-2">{memory.title}</h3>
+                  <p className="text-sm opacity-90">{memory.description}</p>
                 </div>
               </div>
             </motion.div>
-
-            {/* Panduan upload foto */}
-            <PhotoUploadGuide />
-          </div>
+          ))}
         </div>
 
-        {/* Footer Navigation */}
-        <div className="p-6 text-center">
-          <motion.div
-            animate={{ y: [0, -5, 0] }}
-            transition={{ duration: 2, repeat: Infinity }}
-            className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-3 rounded-full shadow-lg cursor-pointer"
+        {/* Navigation Button */}
+        <div className="text-center mt-8">
+          <motion.button
+            whileHover={{ scale: 1.05 }}
+            whileTap={{ scale: 0.95 }}
             onClick={onNext}
+            className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-8 py-3 rounded-full font-bold shadow-lg"
           >
-            <Sparkles className="w-5 h-5" />
-            <span className="font-medium">Lanjutkan Ke Pesan Spesial</span>
-            <Sparkles className="w-5 h-5" />
-          </motion.div>
+            Lanjutkan Ke Pesan Spesial →
+          </motion.button>
         </div>
       </motion.div>
 
-      {/* Memory Detail Popup */}
+      {/* Popup */}
       <AnimatePresence>
         {isPopupOpen && selectedMemoryItem && (
           <motion.div
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 bg-black/90 z-50 flex items-center justify-center p-4"
+            className="fixed inset-0 bg-black/70 z-50 flex items-center justify-center p-4"
             onClick={handleClosePopup}
           >
             <motion.div
-              initial={{ scale: 0.8, opacity: 0 }}
-              animate={{ scale: 1, opacity: 1 }}
-              exit={{ scale: 0.8, opacity: 0 }}
-              className="bg-gradient-to-b from-white to-pink-50 rounded-3xl w-full max-w-4xl max-h-[90vh] overflow-hidden shadow-2xl"
+              initial={{ scale: 0.8 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.8 }}
+              className="bg-white rounded-2xl max-w-lg w-full overflow-hidden"
               onClick={(e) => e.stopPropagation()}
             >
-              {/* Popup Header dengan Photo Background */}
-              <div
-                className="h-64 relative bg-cover bg-center"
+              {/* Popup Header */}
+              <div 
+                className="h-48 bg-cover bg-center relative"
                 style={{ backgroundImage: `url(${selectedMemoryItem.photo})` }}
               >
-                <div className={`absolute inset-0 bg-gradient-to-r ${selectedMemoryItem.color}/90 to-black/70`}>
-                  <div className="p-6 h-full flex flex-col justify-between">
-                    <div className="flex justify-between items-start">
-                      <div>
-                        <h3 className="text-3xl font-bold text-white">{selectedMemoryItem.title}</h3>
-                        <div className="flex items-center gap-4 mt-2">
-                          <p className="text-white/90">{selectedMemoryItem.date}</p>
-                          <div className="flex items-center gap-2 bg-white/20 px-3 py-1 rounded-full">
-                            <span className="text-sm text-white">Kenangan spesial</span>
-                          </div>
-                        </div>
-                      </div>
-                      <motion.button
-                        whileHover={{ scale: 1.1, rotate: 90 }}
-                        whileTap={{ scale: 0.9 }}
-                        onClick={handleClosePopup}
-                        className="w-10 h-10 rounded-full bg-white/20 hover:bg-white/30 flex items-center justify-center transition-all"
-                      >
-                        <X className="w-6 h-6 text-white" />
-                      </motion.button>
-                    </div>
-                    <p className="text-white/90 text-lg mt-4">{selectedMemoryItem.description}</p>
+                <div className="absolute inset-0 bg-gradient-to-t from-black/80 to-transparent">
+                  <div className="absolute bottom-0 left-0 right-0 p-6">
+                    <h3 className="text-2xl font-bold text-white">{selectedMemoryItem.title}</h3>
+                    <p className="text-white/90">{selectedMemoryItem.date}</p>
                   </div>
                 </div>
+                <button
+                  onClick={handleClosePopup}
+                  className="absolute top-4 right-4 w-8 h-8 bg-white/20 rounded-full flex items-center justify-center hover:bg-white/30"
+                >
+                  ✕
+                </button>
               </div>
 
               {/* Popup Content */}
-              <div className="p-6 overflow-y-auto max-h-[calc(90vh-300px)]">
-                <div className="space-y-6">
-                  <h4 className="text-2xl font-bold text-gray-800 flex items-center gap-3">
-                    <div className="w-2 h-8 bg-gradient-to-b from-pink-500 to-purple-500 rounded-full"></div>
-                    Detail Kenangan
-                  </h4>
-                  
-                  {selectedMemoryItem.contents.map((content, index) => (
-                    <motion.div
-                      key={content.id}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ delay: index * 0.1 }}
-                      className="bg-white rounded-2xl p-6 shadow-lg border border-pink-100 hover:shadow-xl transition-shadow duration-300"
-                    >
-                      <div className="flex items-start gap-4">
-                        <div className={`w-16 h-16 rounded-xl flex items-center justify-center ${
-                          content.type === 'moment' ? 'bg-pink-100' :
-                          content.type === 'feeling' ? 'bg-rose-100' :
-                          content.type === 'laughter' ? 'bg-yellow-100' :
-                          content.type === 'joy' ? 'bg-orange-100' :
-                          content.type === 'support' ? 'bg-blue-100' :
-                          'bg-indigo-100'
-                        }`}>
-                          <span className="text-3xl">{content.icon}</span>
-                        </div>
-                        <div className="flex-1">
-                          <div className="flex items-center gap-3 mb-2">
-                            <h4 className="text-xl font-bold text-gray-800">{content.title}</h4>
-                            <span className={`px-3 py-1 rounded-full text-xs font-bold ${
-                              content.type === 'moment' ? 'bg-pink-500 text-white' :
-                              content.type === 'feeling' ? 'bg-rose-500 text-white' :
-                              content.type === 'laughter' ? 'bg-yellow-500 text-white' :
-                              content.type === 'joy' ? 'bg-orange-500 text-white' :
-                              content.type === 'support' ? 'bg-blue-500 text-white' :
-                              'bg-indigo-500 text-white'
-                            }`}>
-                              {content.type.toUpperCase()}
-                            </span>
-                          </div>
-                          <p className="text-gray-600 mb-3 italic">"{content.caption}"</p>
-                          <div className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-lg p-4">
-                            <p className="text-gray-700 flex items-start gap-2">
-                              <MessageCircle className="w-4 h-4 text-pink-500 mt-1 flex-shrink-0" />
-                              <span className="italic">{content.details}</span>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  ))}
-                </div>
+              <div className="p-6">
+                <p className="text-gray-700 mb-6">{selectedMemoryItem.description}</p>
+                
+                {selectedMemoryItem.contents.map((content) => (
+                  <div key={content.id} className="bg-gray-50 rounded-xl p-4 mb-4">
+                    <h4 className="font-bold text-gray-800 mb-2">{content.title}</h4>
+                    <p className="text-gray-600 mb-2 italic">"{content.caption}"</p>
+                    <p className="text-gray-700">{content.details}</p>
+                  </div>
+                ))}
 
-                {/* Birthday Message di Galeri Kenangan */}
-                <motion.div
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.5 }}
-                  className="mt-8 bg-gradient-to-r from-pink-50 to-rose-50 rounded-2xl p-6 border border-pink-200"
-                >
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-10 h-10 bg-gradient-to-r from-pink-500 to-rose-500 rounded-full flex items-center justify-center">
-                      <Heart className="w-5 h-5 text-white" />
-                    </div>
-                    <h5 className="text-xl font-bold text-rose-700">Untuk Kenangan yang Akan Datang</h5>
-                  </div>
-                  <p className="text-gray-700 text-lg leading-relaxed">
-                    "Di ulang tahunmu yang ke-19 ini, aku berjanji akan terus mengumpulkan momen-momen indah bersamamu. 
-                    Setiap foto, setiap kenangan, setiap detik yang kita lewati bersama adalah hadiah terindah. 
-                    Aku tak sabar untuk membuat lebih banyak kenangan manis di usiamu yang baru ini."
-                  </p>
-                  <div className="flex items-center justify-between mt-4">
-                    <p className="text-rose-600 font-bold">
-                      - Untuk lebih banyak senyuman dan tawa -
-                    </p>
-                    <div className="text-2xl">💝</div>
-                  </div>
-                </motion.div>
+                <div className="text-center mt-6">
+                  <button
+                    onClick={handleClosePopup}
+                    className="bg-gradient-to-r from-pink-500 to-purple-500 text-white px-6 py-2 rounded-full"
+                  >
+                    Tutup
+                  </button>
+                </div>
               </div>
             </motion.div>
           </motion.div>
