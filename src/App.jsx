@@ -545,14 +545,49 @@ function CinematicOpening({ name, next }) {
   );
 }
 
-// SCENE 2: Birthday Reveal - Pengumuman Ulang Tahun!
+// SCENE 2: Birthday Reveal - Versi Super Spesial & Mengharukan
 function BirthdayReveal({ name, next }) {
   const [isShaking, setIsShaking] = useState(false);
+  const [showCake, setShowCake] = useState(false);
+  const [showMessage, setShowMessage] = useState(false);
+  const [showCandles, setShowCandles] = useState(false);
+  const [ageVisible, setAgeVisible] = useState(false);
+  const [floatingHearts, setFloatingHearts] = useState([]);
+
+  // Tambahkan hearts floating
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (floatingHearts.length < 15) {
+        setFloatingHearts(prev => [
+          ...prev,
+          {
+            id: Date.now() + Math.random(),
+            x: Math.random() * 100,
+            emoji: ['💖', '💝', '💗', '💓', '💞'][Math.floor(Math.random() * 5)]
+          }
+        ]);
+      }
+    }, 300);
+
+    return () => clearInterval(interval);
+  }, [floatingHearts.length]);
 
   useEffect(() => {
+    // Animasi sequence
     setIsShaking(true);
-    const timer = setTimeout(() => setIsShaking(false), 1000);
-    return () => clearTimeout(timer);
+    const timer1 = setTimeout(() => setIsShaking(false), 800);
+    const timer2 = setTimeout(() => setShowCake(true), 1200);
+    const timer3 = setTimeout(() => setShowCandles(true), 1800);
+    const timer4 = setTimeout(() => setAgeVisible(true), 2500);
+    const timer5 = setTimeout(() => setShowMessage(true), 3200);
+    
+    return () => {
+      clearTimeout(timer1);
+      clearTimeout(timer2);
+      clearTimeout(timer3);
+      clearTimeout(timer4);
+      clearTimeout(timer5);
+    };
   }, []);
 
   return (
@@ -560,15 +595,42 @@ function BirthdayReveal({ name, next }) {
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
       exit={{ opacity: 0 }}
-      className="h-full flex flex-col items-center justify-center p-6 relative overflow-hidden cursor-pointer"
+      className="h-full flex flex-col items-center justify-center p-4 relative overflow-hidden cursor-pointer bg-gradient-to-b from-pink-50 via-rose-50 to-purple-50"
       onClick={next}
     >
-      {/* Animated Background */}
+      {/* Animated Hearts Background */}
+      <div className="absolute inset-0">
+        {floatingHearts.map((heart) => (
+          <motion.div
+            key={heart.id}
+            className="absolute text-2xl"
+            style={{ left: `${heart.x}%`, top: '100%' }}
+            initial={{ y: 0, opacity: 0, scale: 0 }}
+            animate={{ 
+              y: -500, 
+              opacity: [0, 1, 1, 0],
+              scale: [0, 1, 1, 0],
+              rotate: [0, 180, 360]
+            }}
+            transition={{ 
+              duration: 8,
+              ease: "easeOut"
+            }}
+            onAnimationComplete={() => {
+              setFloatingHearts(prev => prev.filter(h => h.id !== heart.id));
+            }}
+          >
+            {heart.emoji}
+          </motion.div>
+        ))}
+      </div>
+
+      {/* Soft Sparkles Background */}
       <div className="absolute inset-0">
         {[...Array(30)].map((_, i) => (
           <motion.div
             key={i}
-            className="absolute text-4xl"
+            className="absolute text-xl"
             style={{
               left: `${Math.random() * 100}%`,
               top: `${Math.random() * 100}%`,
@@ -576,116 +638,242 @@ function BirthdayReveal({ name, next }) {
             animate={{
               y: [0, -100, 0],
               rotate: [0, 360],
-              scale: [0.5, 1, 0.5],
+              opacity: [0.1, 0.5, 0.1],
             }}
             transition={{
-              duration: Math.random() * 5 + 3,
+              duration: Math.random() * 6 + 4,
               repeat: Infinity,
               ease: "linear",
             }}
           >
-            {["🎉", "🎊", "🎁", "✨", "🌟", "💫", "🥳", "🎈"][i % 8]}
+            ✨
           </motion.div>
         ))}
       </div>
 
-      <div className="text-center space-y-8 relative z-10 max-w-4xl">
-        {/* Animated Cake with Age */}
-        <motion.div
-          initial={{ scale: 0, y: 100 }}
-          animate={{ scale: 1, y: 0 }}
-          transition={{ type: "spring", damping: 15 }}
-          className="relative"
-        >
-          <div className="relative w-64 h-64 mx-auto">
-            {/* Cake Base */}
-            <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-48 h-32 bg-gradient-to-b from-yellow-300 to-amber-600 rounded-t-3xl shadow-lg">
-              {/* Cake Layers */}
-              <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-56 h-16 bg-gradient-to-b from-pink-300 to-purple-500 rounded-full shadow-lg"></div>
-              <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-44 h-12 bg-gradient-to-b from-white to-pink-200 rounded-full shadow-lg"></div>
+      <div className="text-center space-y-8 relative z-10 max-w-4xl px-4">
+        {/* Animated Cake with 19 Candles */}
+        {showCake && (
+          <motion.div
+            initial={{ scale: 0, y: 100 }}
+            animate={{ scale: 1, y: 0 }}
+            transition={{ type: "spring", damping: 20 }}
+            className="relative mb-12"
+          >
+            <div className="relative w-80 h-80 mx-auto">
+              {/* Cake Shadow */}
+              <div className="absolute bottom-0 left-1/2 transform -translate-x-1/2 w-64 h-6 bg-gray-300/30 blur-lg rounded-full"></div>
               
-              {/* Candles - 19 lilin untuk usia 19 tahun (2007 lahir) */}
-              {[...Array(19)].map((_, i) => (
+              {/* Cake Base - 3 Layers */}
+              <div className="absolute bottom-4 left-1/2 transform -translate-x-1/2">
+                {/* Layer 3 (Bottom) */}
+                <div className="w-64 h-24 bg-gradient-to-b from-pink-300 to-rose-400 rounded-full shadow-xl border-4 border-rose-200">
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent"></div>
+                </div>
+                
+                {/* Layer 2 (Middle) */}
                 <motion.div
-                  key={i}
-                  className="absolute bottom-full"
-                  style={{
-                    left: `${(i * 22) % 200}%`,
-                    bottom: `${40 + (Math.floor(i / 10) * 20)}%`,
-                  }}
-                  animate={{ 
-                    y: [0, -5, 0],
-                    rotate: [0, 5, 0, -5, 0]
-                  }}
-                  transition={{ 
-                    duration: 1 + Math.random(),
-                    repeat: Infinity,
-                    delay: i * 0.1
-                  }}
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.3 }}
+                  className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-56 h-20 bg-gradient-to-b from-white to-pink-100 rounded-full shadow-lg border-4 border-pink-100"
                 >
-                  <div className="w-1 h-8 bg-gradient-to-b from-yellow-400 to-red-500 rounded-t-full"></div>
-                  <div className="w-3 h-3 bg-yellow-300 rounded-full -mt-1 mx-auto blur-sm"></div>
+                  <div className="absolute inset-2 bg-gradient-to-r from-pink-200/50 to-purple-200/50 rounded-full"></div>
                 </motion.div>
-              ))}
-            </div>
-            
-            {/* Age Display */}
-            <motion.div
-              animate={{ 
-                y: [0, -10, 0],
-                rotate: [0, 5, -5, 0]
-              }}
-              transition={{ 
-                duration: 3,
-                repeat: Infinity 
-              }}
-              className="absolute -top-32 left-1/2 transform -translate-x-1/2"
-            >
-              <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full text-2xl font-bold shadow-lg">
-                🎂 19 TAHUN 🎂
-              </div>
-            </motion.div>
-          </div>
-        </motion.div>
+                
+                {/* Layer 1 (Top) */}
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 0.5 }}
+                  className="absolute -top-20 left-1/2 transform -translate-x-1/2 w-48 h-16 bg-gradient-to-b from-purple-100 to-pink-200 rounded-full shadow-lg border-4 border-purple-100"
+                >
+                  <div className="absolute top-2 left-1/2 transform -translate-x-1/2 w-40 h-2 bg-gradient-to-r from-pink-400 to-purple-400 rounded-full"></div>
+                </motion.div>
 
-        {/* Birthday Message */}
-        <motion.div
-          initial={{ y: 100, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          transition={{ delay: 0.5, type: "spring", stiffness: 100 }}
-          className="space-y-4"
-        >
-          <motion.h1
+                {/* Decorative Dots */}
+                {[...Array(12)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute w-4 h-4 rounded-full bg-gradient-to-r from-yellow-300 to-pink-300 shadow-sm"
+                    style={{
+                      bottom: `${10 + (i % 4) * 8}px`,
+                      left: `${20 + Math.floor(i / 4) * 40}px`,
+                    }}
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: i * 0.1 }}
+                  />
+                ))}
+
+                {/* Candles - 19 lilin untuk usia 19 tahun */}
+                {showCandles && [...Array(19)].map((_, i) => (
+                  <motion.div
+                    key={i}
+                    className="absolute bottom-full"
+                    style={{
+                      left: `${50 + Math.cos(i * 0.33) * 40}%`,
+                      bottom: `${40 + Math.sin(i * 0.33) * 10}%`,
+                    }}
+                    initial={{ scale: 0, y: 50 }}
+                    animate={{ 
+                      scale: 1, 
+                      y: 0,
+                      rotate: [0, 5, -5, 0]
+                    }}
+                    transition={{ 
+                      duration: 0.5,
+                      delay: i * 0.1,
+                      rotate: { duration: 2, repeat: Infinity }
+                    }}
+                  >
+                    <div className="relative">
+                      <div className="w-1.5 h-12 bg-gradient-to-b from-pink-500 via-rose-400 to-yellow-300 rounded-t-full mx-auto shadow-sm"></div>
+                      <motion.div
+                        initial={{ scale: 0 }}
+                        animate={{ scale: [0, 1, 1, 0] }}
+                        transition={{ 
+                          duration: 1.5,
+                          repeat: Infinity,
+                          repeatDelay: 1
+                        }}
+                        className="absolute -top-2 left-1/2 transform -translate-x-1/2 w-3 h-3 bg-gradient-to-r from-yellow-400 to-orange-400 rounded-full blur-sm"
+                      />
+                      <div className="absolute -top-3 left-1/2 transform -translate-x-1/2 w-2 h-2 bg-yellow-300 rounded-full blur-sm"></div>
+                    </div>
+                  </motion.div>
+                ))}
+
+                {/* "19" Cake Topper */}
+                {ageVisible && (
+                  <motion.div
+                    initial={{ scale: 0, rotate: -180 }}
+                    animate={{ 
+                      scale: 1, 
+                      rotate: 0,
+                      y: [0, -10, 0]
+                    }}
+                    transition={{ 
+                      type: "spring",
+                      damping: 15,
+                      y: { duration: 3, repeat: Infinity }
+                    }}
+                    className="absolute -top-40 left-1/2 transform -translate-x-1/2"
+                  >
+                    <div className="relative">
+                      <div className="text-5xl font-bold bg-gradient-to-r from-pink-500 via-rose-500 to-purple-500 bg-clip-text text-transparent">
+                        1️⃣9️⃣
+                      </div>
+                      <div className="absolute -inset-4 bg-gradient-to-r from-pink-500/30 to-purple-500/30 rounded-full blur-xl"></div>
+                    </div>
+                  </motion.div>
+                )}
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {/* Birthday Messages */}
+        <div className="space-y-6">
+          {/* Main Happy Birthday Text */}
+          <motion.div
             animate={isShaking ? { 
-              scale: [1, 1.1, 1],
+              scale: [1, 1.15, 1],
               rotate: [0, 2, -2, 0]
             } : {}}
             transition={{ duration: 0.5 }}
-            className="text-6xl md:text-7xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent"
+            className="space-y-3"
           >
-            SELAMAT ULANG TAHUN!
-          </motion.h1>
-          
-          <motion.div
-            initial={{ scale: 0 }}
-            animate={{ scale: 1 }}
-            transition={{ delay: 1, type: "spring" }}
-            className="inline-block"
-          >
-            <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-3xl font-bold shadow-lg transform hover:scale-105 transition-transform duration-300">
-              🎉 {name || "Sayangku"} yang ke-19 🎉
-            </div>
+            <motion.h1
+              initial={{ opacity: 0, y: 50 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.3 }}
+              className="text-5xl md:text-7xl font-bold bg-gradient-to-r from-pink-600 via-rose-500 to-purple-600 bg-clip-text text-transparent"
+            >
+              🎂 Happy Birthday! 🎂
+            </motion.h1>
+            
+            <motion.div
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              transition={{ delay: 0.7 }}
+              className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-500 to-purple-500 bg-clip-text text-transparent"
+            >
+              {name || "Sayangku"}
+            </motion.div>
           </motion.div>
-          
-          <motion.p
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            transition={{ delay: 1.5 }}
-            className="text-2xl text-gray-700 font-semibold"
-          >
-            Selamat datang di dunia yang lebih dewasa! 🎊
-          </motion.p>
-        </motion.div>
+
+          {/* Heartfelt Message */}
+          {showMessage && (
+            <motion.div
+              initial={{ opacity: 0, y: 30 }}
+              animate={{ opacity: 1, y: 0 }}
+              transition={{ delay: 0.9 }}
+              className="space-y-4 max-w-2xl mx-auto"
+            >
+              <div className="bg-gradient-to-r from-pink-100/80 to-purple-100/80 backdrop-blur-sm rounded-2xl p-6 shadow-lg border border-pink-200">
+                <div className="flex items-center justify-center gap-3 mb-4">
+                  <motion.div
+                    animate={{ rotate: [0, 360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Heart className="w-6 h-6 text-rose-500 fill-rose-500" />
+                  </motion.div>
+                  <p className="text-2xl font-bold text-rose-600">Untuk Kamu yang Spesial</p>
+                  <motion.div
+                    animate={{ rotate: [0, -360] }}
+                    transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
+                  >
+                    <Heart className="w-6 h-6 text-rose-500 fill-rose-500" />
+                  </motion.div>
+                </div>
+                
+                <div className="space-y-3 text-gray-700 text-lg">
+                  <p>🎀 Hari ini adalah hari yang sangat spesial...</p>
+                  <p>✨ Karena hari ini adalah hari ulang tahunmu yang ke-19!</p>
+                  <p>💝 Kamu telah tumbuh menjadi seseorang yang begitu luar biasa</p>
+                  <p>🌟 Setiap tahun bersamamu adalah anugerah terindah</p>
+                </div>
+                
+                <motion.div
+                  initial={{ scale: 0 }}
+                  animate={{ scale: 1 }}
+                  transition={{ delay: 1.5 }}
+                  className="mt-6 pt-4 border-t border-rose-200"
+                >
+                  <div className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-6 py-3 rounded-full shadow-lg">
+                    <Sparkles className="w-5 h-5" />
+                    <span className="text-xl font-bold">Welcome to 19! 🎊</span>
+                    <Sparkles className="w-5 h-5" />
+                  </div>
+                </motion.div>
+              </div>
+            </motion.div>
+          )}
+
+          {/* Age Celebration Card */}
+          {ageVisible && (
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ type: "spring", delay: 1.2 }}
+              className="inline-block"
+            >
+              <div className="bg-gradient-to-r from-blue-500/20 to-purple-500/20 backdrop-blur-sm p-1 rounded-2xl">
+                <div className="bg-white/90 p-6 rounded-2xl shadow-xl border border-purple-100">
+                  <div className="flex items-center gap-4">
+                    <div className="w-16 h-16 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full flex items-center justify-center">
+                      <span className="text-3xl">🎉</span>
+                    </div>
+                    <div className="text-left">
+                      <p className="text-2xl font-bold text-purple-700">Tahun ke-19 dimulai!</p>
+                      <p className="text-gray-600">Petualangan baru menanti di depan</p>
+                    </div>
+                  </div>
+                </div>
+              </div>
+            </motion.div>
+          )}
+        </div>
 
         {/* Interactive Instruction */}
         <motion.div
@@ -694,19 +882,58 @@ function BirthdayReveal({ name, next }) {
           transition={{ delay: 2 }}
           className="pt-8"
         >
-          <div className="inline-flex items-center gap-3 bg-white/80 backdrop-blur-sm px-6 py-3 rounded-full shadow-lg border border-purple-200">
-            <Sparkles className="w-5 h-5 text-yellow-500 animate-spin-slow" />
-            <p className="text-gray-600 font-medium">
-              Sentuh layar untuk melihat galeri hadiah digital!
-            </p>
+          <motion.div
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 2, repeat: Infinity }}
+            className="inline-flex items-center gap-3 bg-gradient-to-r from-pink-500 to-rose-500 text-white px-8 py-4 rounded-full shadow-xl"
+          >
             <motion.div
-              animate={{ x: [0, 5, 0] }}
-              transition={{ duration: 1, repeat: Infinity }}
+              animate={{ rotate: [0, 360] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
             >
-              <Sparkles className="w-5 h-5 text-yellow-500" />
+              <Sparkles className="w-6 h-6" />
             </motion.div>
-          </div>
+            <div className="text-center">
+              <p className="font-bold text-lg">Sentuh layar untuk melihat</p>
+              <p className="text-sm opacity-90">Galeri kenangan spesial kami</p>
+            </div>
+            <motion.div
+              animate={{ rotate: [0, -360] }}
+              transition={{ duration: 3, repeat: Infinity, ease: "linear" }}
+            >
+              <Sparkles className="w-6 h-6" />
+            </motion.div>
+          </motion.div>
         </motion.div>
+
+        {/* Floating Celebration Elements */}
+        <div className="absolute bottom-10 left-10">
+          <motion.div
+            animate={{ y: [0, -20, 0], rotate: [0, 10, -10, 0] }}
+            transition={{ duration: 3, repeat: Infinity }}
+            className="text-4xl"
+          >
+            🎁
+          </motion.div>
+        </div>
+        <div className="absolute top-10 right-10">
+          <motion.div
+            animate={{ y: [0, -15, 0], rotate: [0, -10, 10, 0] }}
+            transition={{ duration: 2.5, repeat: Infinity }}
+            className="text-4xl"
+          >
+            🎈
+          </motion.div>
+        </div>
+        <div className="absolute bottom-20 right-20">
+          <motion.div
+            animate={{ scale: [1, 1.2, 1], rotate: [0, 360] }}
+            transition={{ duration: 4, repeat: Infinity }}
+            className="text-4xl"
+          >
+            🎀
+          </motion.div>
+        </div>
       </div>
     </motion.div>
   );
