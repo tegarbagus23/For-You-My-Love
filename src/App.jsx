@@ -604,8 +604,8 @@ function BirthdayReveal({ name, next }) {
               <div className="absolute -top-8 left-1/2 transform -translate-x-1/2 w-56 h-16 bg-gradient-to-b from-pink-300 to-purple-500 rounded-full shadow-lg"></div>
               <div className="absolute -top-16 left-1/2 transform -translate-x-1/2 w-44 h-12 bg-gradient-to-b from-white to-pink-200 rounded-full shadow-lg"></div>
               
-              {/* Candles - 17 lilin untuk usia 17 tahun (2007 lahir) */}
-              {[...Array(17)].map((_, i) => (
+              {/* Candles - 19 lilin untuk usia 19 tahun (2007 lahir) */}
+              {[...Array(19)].map((_, i) => (
                 <motion.div
                   key={i}
                   className="absolute bottom-full"
@@ -642,7 +642,7 @@ function BirthdayReveal({ name, next }) {
               className="absolute -top-32 left-1/2 transform -translate-x-1/2"
             >
               <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-3 rounded-full text-2xl font-bold shadow-lg">
-                🎂 17 TAHUN 🎂
+                🎂 19 TAHUN 🎂
               </div>
             </motion.div>
           </div>
@@ -673,7 +673,7 @@ function BirthdayReveal({ name, next }) {
             className="inline-block"
           >
             <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-3 rounded-full text-3xl font-bold shadow-lg transform hover:scale-105 transition-transform duration-300">
-              🎉 {name || "Sayangku"} yang ke-17 🎉
+              🎉 {name || "Sayangku"} yang ke-19 🎉
             </div>
           </motion.div>
           
@@ -740,7 +740,7 @@ function GiftGallery({ name, onNext }) {
           title: "Doa Pertama",
           caption: "Semoga selalu bahagia",
           icon: "🌟",
-          details: "Doa tulus untuk kebahagiaanmu di usia 17"
+          details: "Doa tulus untuk kebahagiaanmu di usia 19"
         },
         { 
           id: 3, 
@@ -755,7 +755,7 @@ function GiftGallery({ name, onNext }) {
     gift2: {
       id: "gift2",
       title: "Harapan untuk Tahun Ini",
-      date: "Usia 17 Tahun",
+      date: "Usia 19 Tahun",
       description: "Impian dan cita-cita yang akan kau raih",
       icon: "🎯",
       color: "from-purple-400 to-pink-500",
@@ -774,7 +774,7 @@ function GiftGallery({ name, onNext }) {
           title: "Target Tahun Ini",
           caption: "Capai semua targetmu",
           icon: "🏆",
-          details: "Di usia 17, dunia ada di genggamanmu"
+          details: "Di usia 19, dunia ada di genggamanmu"
         },
         { 
           id: 3, 
@@ -1062,12 +1062,12 @@ function GiftGallery({ name, onNext }) {
                     <h5 className="text-xl font-bold text-purple-700">Selamat Ulang Tahun!</h5>
                   </div>
                   <p className="text-gray-700 text-lg leading-relaxed">
-                    "Di hari ulang tahunmu yang ke-17 ini, semua hadiah ini adalah simbol cinta dan perhatian. 
+                    "Di hari ulang tahunmu yang ke-19 ini, semua hadiah ini adalah simbol cinta dan perhatian. 
                     Setiap kata, setiap harapan, dan setiap doa di sini adalah untukmu, {name || "sayang"}. 
                     Semoga tahun ini membawa lebih banyak kebahagiaan, kesuksesan, dan petualangan indah."
                   </p>
                   <p className="text-right text-purple-600 font-bold mt-4 text-lg">
-                    - Untukmu di usia 17 tahun 💝
+                    - Untukmu di usia 19 tahun 💝
                   </p>
                 </motion.div>
               </div>
@@ -1085,11 +1085,11 @@ function SpecialMessage({ name, onNext }) {
   const [isComplete, setIsComplete] = useState(false);
   
   const messages = [
-    `Di hari ulang tahunmu yang ke-17, ${name || "sayangku"}...`,
+    `Di hari ulang tahunmu yang ke-19, ${name || "sayangku"}...`,
     "Aku ingin mengungkapkan betapa bangganya aku mengenalmu.",
     "Di usiamu yang baru ini, kamu telah tumbuh menjadi seseorang yang luar biasa.",
     "Setiap pencapaianmu, setiap senyumanmu, membuat dunia lebih indah.",
-    "Di usia 17, banyak hal baru menantimu.",
+    "Di usia 19, banyak hal baru menantimu.",
     "Petualangan, pengalaman, dan pelajaran hidup yang berharga.",
     "Tapi ingatlah, apapun yang terjadi...",
     "Kamu tidak pernah sendirian.",
@@ -1097,7 +1097,7 @@ function SpecialMessage({ name, onNext }) {
     "Percayalah pada dirimu sendiri.",
     "Kamu kuat, kamu mampu, dan kamu spesial.",
     "Selamat ulang tahun untuk pribadi yang luar biasa.",
-    "Semoga semua impianmu menjadi kenyataan di usia 17 ini."
+    "Semoga semua impianmu menjadi kenyataan di usia 19 ini."
   ];
 
   useEffect(() => {
@@ -1185,7 +1185,7 @@ function SpecialMessage({ name, onNext }) {
           {/* Letter Header */}
           <div className="text-center mb-8 pb-8 border-b border-blue-200">
             <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
-              <div className="text-2xl">17</div>
+              <div className="text-2xl">19</div>
             </div>
             <h3 className="text-3xl font-bold text-blue-700">Pesan Spesial Ulang Tahun</h3>
             <p className="text-gray-600 mt-2">Untukmu di usia yang penuh makna</p>
@@ -1240,7 +1240,7 @@ function SpecialMessage({ name, onNext }) {
             >
               <div className="text-center">
                 <p className="text-blue-600 font-bold text-2xl mb-2">
-                  Selamat Ulang Tahun ke-17!
+                  Selamat Ulang Tahun ke-19!
                 </p>
                 <div className="inline-block">
                   <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-2 rounded-lg">
@@ -1282,7 +1282,7 @@ function WishesForYou({ name, onNext }) {
   const [showButton, setShowButton] = useState(false);
 
   const wishes = [
-    "Semoga di usia 17 tahun ini, kamu menemukan jati dirimu",
+    "Semoga di usia 19 tahun ini, kamu menemukan jati dirimu",
     "Semoga kesehatan selalu menyertai setiap langkahmu",
     "Semoga kesuksesan menghampiri dalam setiap usahamu",
     "Semoga kebahagiaan menjadi teman setiamu",
@@ -1360,7 +1360,7 @@ function WishesForYou({ name, onNext }) {
           >
             <Crown className="w-8 h-8 text-yellow-500" />
             <h2 className={`text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent`}>
-              Doa-Doa untuk Usia 17
+              Doa-Doa untuk Usia 19
             </h2>
             <Crown className="w-8 h-8 text-yellow-500" />
           </motion.div>
@@ -1506,7 +1506,7 @@ function FinalSurprise({ name, onPlayAudio, musicPlaying }) {
                 transition={{ duration: 2, repeat: Infinity }}
               >
                 <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-6 py-2 rounded-full text-xl font-bold">
-                  USIA 17 TAHUN
+                  USIA 19 TAHUN
                 </div>
               </motion.div>
             </div>
@@ -1522,7 +1522,7 @@ function FinalSurprise({ name, onPlayAudio, musicPlaying }) {
           >
             <div className="space-y-4">
               <h2 className={`text-4xl font-bold bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 bg-clip-text text-transparent`}>
-                Happy 17th Birthday!
+                Happy 19th Birthday!
               </h2>
               <div className={`space-y-4 text-lg text-gray-700`}>
                 <p>
@@ -1554,7 +1554,7 @@ function FinalSurprise({ name, onPlayAudio, musicPlaying }) {
                 Kejutan digital ini dibuat dengan sepenuh hati
               </p>
               <p className={`text-lg font-bold mt-2 text-gray-800`}>
-                - Untuk {name || "kamu"} di ulang tahun ke-17 -
+                - Untuk {name || "kamu"} di ulang tahun ke-19 -
               </p>
               <p className={`text-sm mt-4 text-gray-400`}>
                 22 Januari 2007 ~ 22 Januari 2024
