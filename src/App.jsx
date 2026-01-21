@@ -391,9 +391,9 @@ function CinematicOpening({ name, next }) {
   const texts = [
     `Untuk ${name || "kamu"} yang paling spesial...`,
     `Di hari yang penuh makna ini...`,
-    `Sebuah kejutan telah dipersiapkan...`,
+    `Sebuah kejutan yang sudah mas persiapkan untuk dede seorang...`,
     `Untuk merayakan hari yang sangat penting...`,
-    `Siap untuk kejutan ulang tahun?`
+    `apakah dede siap?`
   ];
 
   useEffect(() => {
@@ -815,37 +815,36 @@ function MemoryGallery({ name, onNext }) {
 
   const selectedMemoryItem = selectedMemory ? memories.find(m => m.id === selectedMemory) : null;
 
-  // Instructions untuk upload foto
-  const PhotoUploadGuide = () => (
-    <motion.div
-      initial={{ opacity: 0, y: 20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ delay: 0.6 }}
-      className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-pink-200 max-w-2xl mx-auto"
-    >
-      <div className="flex items-start gap-4">
-        <div className="bg-pink-100 p-3 rounded-xl">
-          <Camera className="w-6 h-6 text-pink-600" />
-        </div>
-        <div>
-          <h4 className="text-xl font-bold text-pink-700 mb-2">
-            Ingin Menambahkan Foto Kenanganmu?
-          </h4>
-          <p className="text-gray-700 mb-3">
-            Website ini bisa ditambahkan foto-foto kenangan spesial kalian berdua!
-          </p>
-          <div className="bg-white/80 p-4 rounded-lg border border-pink-100">
-            <p className="text-sm text-gray-600 font-medium mb-2">Caranya:</p>
-            <ol className="list-decimal list-inside space-y-1 text-sm text-gray-700">
-              <li>Ganti URL foto di kode dengan URL foto kenanganmu</li>
-              <li>Atau upload ke layanan seperti Imgur/Google Drive</li>
-              <li>Copy link foto dan paste di bagian "photo"</li>
-            </ol>
-          </div>
+  // BirthdayMessage yang lebih romantis
+const BirthdayMessage = () => (
+  <motion.div
+    initial={{ opacity: 0, y: 20 }}
+    animate={{ opacity: 1, y: 0 }}
+    transition={{ delay: 0.6 }}
+    className="bg-gradient-to-r from-pink-50 to-purple-50 rounded-2xl p-6 shadow-lg border border-pink-200 max-w-2xl mx-auto"
+  >
+    <div className="flex items-start gap-4">
+      <div className="bg-pink-100 p-3 rounded-xl">
+        <Heart className="w-6 h-6 text-pink-600" />
+      </div>
+      <div>
+        <h4 className="text-xl font-bold text-pink-700 mb-2">
+          Setiap Kenangan adalah Hadiah
+        </h4>
+        <p className="text-gray-700 mb-3">
+          "Momen-momen indah yang kita bagi adalah harta yang tak ternilai. 
+          Di ulang tahunmu yang ke-19 ini, mari kita mengenang kembali kebahagiaan 
+          yang telah kita buat bersama. Semoga di usia yang baru ini, kita bisa 
+          membuat lebih banyak kenangan manis lagi."
+        </p>
+        <div className="mt-4 flex items-center gap-2 text-sm text-gray-500">
+          <Sparkles className="w-4 h-4" />
+          <span>Scroll ke bawah untuk melanjutkan ke pesan spesial</span>
         </div>
       </div>
-    </motion.div>
-  );
+    </div>
+  </motion.div>
+);
 
   return (
     <div className="h-full relative">
@@ -928,7 +927,7 @@ function MemoryGallery({ name, onNext }) {
               ))}
             </div>
 
-            {/* Ganti "Cara Menikmati Hadiah" dengan pesan yang lebih sesuai */}
+            {/* "Cara Menikmati Hadiah" dengan pesan yang lebih sesuai */}
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
@@ -1117,6 +1116,7 @@ function MemoryGallery({ name, onNext }) {
 function SpecialMessage({ name, onNext }) {
   const [visibleMessages, setVisibleMessages] = useState([]);
   const [isComplete, setIsComplete] = useState(false);
+  const messagesContainerRef = useRef(null);
   
   const messages = [
     `Di hari ulang tahunmu yang ke-19, ${name || "sayangku"}...`,
@@ -1133,6 +1133,13 @@ function SpecialMessage({ name, onNext }) {
     "Selamat ulang tahun untuk pribadi yang luar biasa.",
     "Semoga semua impianmu menjadi kenyataan di usia 19 ini."
   ];
+
+  useEffect(() => {
+    if (messagesContainerRef.current) {
+      // Scroll ke bawah setiap kali pesan baru muncul
+      messagesContainerRef.current.scrollTop = messagesContainerRef.current.scrollHeight;
+    }
+  }, [visibleMessages]);
 
   useEffect(() => {
     setVisibleMessages([]);
@@ -1202,11 +1209,11 @@ function SpecialMessage({ name, onNext }) {
         ))}
       </div>
 
-      <div className="max-w-2xl w-full relative z-10">
+      <div className="max-w-2xl w-full relative z-10 h-full flex flex-col">
         <motion.div
           initial={{ opacity: 0, y: 50 }}
           animate={{ opacity: 1, y: 0 }}
-          className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-2 border-blue-300 relative"
+          className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border-2 border-blue-300 relative flex flex-col h-full"
         >
           {/* Letter Decoration */}
           <div className="absolute top-4 left-4 text-blue-300">
@@ -1217,7 +1224,7 @@ function SpecialMessage({ name, onNext }) {
           </div>
           
           {/* Letter Header */}
-          <div className="text-center mb-8 pb-8 border-b border-blue-200">
+          <div className="text-center mb-4 pb-4 border-b border-blue-200">
             <div className="inline-block p-4 bg-gradient-to-r from-blue-500 to-purple-500 rounded-full mb-4">
               <div className="text-2xl">19</div>
             </div>
@@ -1225,18 +1232,28 @@ function SpecialMessage({ name, onNext }) {
             <p className="text-gray-600 mt-2">Untukmu di usia yang penuh makna</p>
           </div>
 
-          {/* Message Body */}
-          <div className="space-y-6 min-h-[400px]">
+          {/* Message Body - FIXED dengan scroll */}
+          <div 
+            ref={messagesContainerRef}
+            className="space-y-4 flex-1 overflow-y-auto p-2"
+            style={{ maxHeight: '300px' }}
+          >
             {visibleMessages.map((message, index) => (
               <motion.div
                 key={`message-${index}`}
                 initial={{ opacity: 0, x: -20 }}
                 animate={{ opacity: 1, x: 0 }}
                 transition={{ delay: index * 0.1 }}
-                className="flex gap-4"
+                className="flex gap-3 bg-blue-50/50 p-4 rounded-xl"
               >
                 <div className="flex-shrink-0 pt-1">
-                  <div className="w-3 h-3 bg-blue-400 rounded-full"></div>
+                  <motion.div
+                    animate={{ scale: [1, 1.2, 1] }}
+                    transition={{ duration: 0.5 }}
+                    className="w-8 h-8 bg-gradient-to-r from-blue-400 to-purple-400 rounded-full flex items-center justify-center"
+                  >
+                    <span className="text-white text-sm">{index + 1}</span>
+                  </motion.div>
                 </div>
                 <p className="text-lg text-gray-700 leading-relaxed flex-1">
                   {message}
@@ -1249,17 +1266,20 @@ function SpecialMessage({ name, onNext }) {
               <motion.div
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                className="flex items-center justify-center h-8"
+                className="flex items-center justify-center py-4"
               >
-                <div className="flex items-center gap-2">
-                  {[...Array(3)].map((_, i) => (
-                    <motion.div
-                      key={i}
-                      animate={{ scale: [1, 1.5, 1] }}
-                      transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }}
-                      className="w-2 h-2 bg-blue-400 rounded-full"
-                    />
-                  ))}
+                <div className="flex items-center gap-2 bg-blue-100 px-4 py-2 rounded-full">
+                  <span className="text-sm text-blue-600">Mengetik pesan...</span>
+                  <div className="flex items-center gap-1">
+                    {[...Array(3)].map((_, i) => (
+                      <motion.div
+                        key={i}
+                        animate={{ scale: [1, 1.5, 1] }}
+                        transition={{ duration: 0.6, repeat: Infinity, delay: i * 0.2 }}
+                        className="w-2 h-2 bg-blue-400 rounded-full"
+                      />
+                    ))}
+                  </div>
                 </div>
               </motion.div>
             )}
@@ -1270,7 +1290,7 @@ function SpecialMessage({ name, onNext }) {
             <motion.div
               initial={{ opacity: 0, y: 20 }}
               animate={{ opacity: 1, y: 0 }}
-              className="mt-12 pt-8 border-t border-blue-200"
+              className="mt-4 pt-4 border-t border-blue-200"
             >
               <div className="text-center">
                 <p className="text-blue-600 font-bold text-2xl mb-2">
@@ -1278,20 +1298,38 @@ function SpecialMessage({ name, onNext }) {
                 </p>
                 <div className="inline-block">
                   <div className="bg-gradient-to-r from-blue-500 to-purple-500 text-white px-8 py-2 rounded-lg">
-                    <p className="text-xl font-bold">Semoga Bahagia Selalu</p>
+                    <p className="text-xl font-bold">Semoga Bahagia Selalu cantiikkk</p>
                   </div>
                 </div>
                 <div className="flex justify-center mt-4 gap-4">
-                  <div className="text-2xl">🎈</div>
-                  <div className="text-2xl">🎉</div>
-                  <div className="text-2xl">🎁</div>
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity }}
+                    className="text-2xl"
+                  >
+                    🎈
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.2 }}
+                    className="text-2xl"
+                  >
+                    🎉
+                  </motion.div>
+                  <motion.div
+                    animate={{ y: [0, -10, 0] }}
+                    transition={{ duration: 2, repeat: Infinity, delay: 0.4 }}
+                    className="text-2xl"
+                  >
+                    🎁
+                  </motion.div>
                 </div>
               </div>
             </motion.div>
           )}
 
           {/* Instruction */}
-          <div className="mt-8 text-center pt-6 border-t border-blue-100">
+          <div className="mt-4 text-center pt-4 border-t border-blue-100">
             <motion.div
               animate={{ opacity: [0.5, 1, 0.5] }}
               transition={{ duration: 2, repeat: Infinity }}
@@ -1299,7 +1337,9 @@ function SpecialMessage({ name, onNext }) {
             >
               <Sparkles className="w-5 h-5 text-blue-500" />
               <p className="text-gray-600 font-medium">
-                {isComplete ? "Sentuh layar untuk doa-doa terakhir..." : "Membaca pesan spesial..."}
+                {isComplete 
+                  ? "Sentuh layar untuk melanjutkan ke doa-doa..." 
+                  : `${visibleMessages.length} dari ${messages.length} pesan...`}
               </p>
               <Sparkles className="w-5 h-5 text-blue-500" />
             </motion.div>
@@ -1316,18 +1356,18 @@ function WishesForYou({ name, onNext }) {
   const [showButton, setShowButton] = useState(false);
 
   const wishes = [
-    "Semoga di usia 19 tahun ini, kamu menemukan jati dirimu",
-    "Semoga kesehatan selalu menyertai setiap langkahmu",
-    "Semoga kesuksesan menghampiri dalam setiap usahamu",
-    "Semoga kebahagiaan menjadi teman setiamu",
-    "Semoga impian-impianmu perlahan menjadi kenyataan",
-    "Semoga kamu selalu dikelilingi orang-orang baik",
-    "Semoga setiap hari membawa cerita baru yang indah",
-    "Semoga hatimu selalu dipenuhi kedamaian",
-    "Semoga petualangan hidupmu penuh makna",
-    "Semoga cinta dan kasih sayang selalu menyertaimu",
-    "Dan yang terpenting, semoga kamu selalu menjadi versi terbaik dari dirimu sendiri"
-  ];
+    "Semoga di usia 19 tahun ini, dede menemukan jati dirinya",
+    "Semoga kesehatan selalu menyertai setiap langkah dede",
+    "Semoga kesuksesan menghampiri dalam setiap usaha dede",
+    "Semoga kebahagiaan menjadi teman setia dede",
+    "Semoga impian-impian dede perlahan menjadi kenyataan",
+    "Semoga dede selalu dikelilingi orang-orang baik",
+    "Semoga setiap hari membawa cerita baru yang indah bagi dede",
+    "Semoga hati dede selalu dipenuhi kedamaian",
+    "Semoga petualangan hidup dede penuh makna",
+    "Semoga cinta dan kasih sayang selalu menyertai dede",
+    "Dan yang terpenting, semoga dede selalu menjadi versi terbaik dari dirinya sendiri"
+];
 
   useEffect(() => {
     setVisibleWishes([]);
@@ -1394,7 +1434,7 @@ function WishesForYou({ name, onNext }) {
           >
             <Crown className="w-8 h-8 text-yellow-500" />
             <h2 className={`text-4xl font-bold bg-gradient-to-r from-purple-600 to-pink-600 bg-clip-text text-transparent`}>
-              Doa-Doa untuk Usia 19
+              Doa-Doa untuk dede yang usianya bertambah
             </h2>
             <Crown className="w-8 h-8 text-yellow-500" />
           </motion.div>
@@ -1591,7 +1631,7 @@ function FinalSurprise({ name, onPlayAudio, musicPlaying }) {
                 - Untuk {name || "kamu"} di ulang tahun ke-19 -
               </p>
               <p className={`text-sm mt-4 text-gray-400`}>
-                22 Januari 2007 ~ 22 Januari 2024
+                22 Januari 2007
               </p>
             </motion.div>
 
